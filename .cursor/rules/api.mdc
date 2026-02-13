@@ -1,0 +1,91 @@
+---
+description: NestJS API conventions – TypeORM, migrations, seeders, REST patterns
+globs: apps/api/**/*.ts
+alwaysApply: false
+---
+
+# API (apps/api)
+
+NestJS REST API with TypeORM, class-validator, and BullMQ job dispatching.
+
+## TypeORM
+
+- Entities live in `packages/database/src/entities/`. Import from `@clausehunter/database`.
+- Use the **repository pattern** — inject repositories via `@InjectRepository(Entity)`.
+- Never write raw SQL. Use QueryBuilder for complex queries.
+- Relations: always use decorators (`@OneToMany`, `@ManyToOne`, `@JoinColumn`).
+
+```ts
+// ✅ GOOD
+@Injectable()
+export class ContractService {
+  constructor(
+    @InjectRepository(Contract)
+    private readonly contractRepo: Repository<Contract>,
+  ) {}
+
+  async findByUser(userId: string): Promise<Contract[]> {
+    return this.contractRepo.find({
+      where: { userId },
+      relations: ["clauses"],
+      order: { createdAt: "DESC" },
+    });
+  }
+}
+```
+
+## Migrations
+
+- Generate migrations with: `npx typeorm migration:generate -d src/data-source.ts src/migrations/<MigrationName>`
+- Migrations live in `packages/database/src/migrations/`.
+- Never modify a migration after it has been run. Create a new one instead.
+- Run migrations: `npm run migration:run` from root.
+
+## Seeders
+
+- Seed scripts live in `packages/database/src/seeds/`.
+- Each seeder is a standalone script that can be run independently.
+- Use `dataSource.initialize()` → insert → `dataSource.destroy()` pattern.
+- Run: `npm run seed` from root.
+
+## Validation
+
+- Use **class-validator** decorators on DTOs for request validation.
+- Use **class-transformer** for payload transformation.
+- Apply `ValidationPipe` globally in `main.ts`.
+
+```ts
+// ✅ GOOD
+export class CreateContractDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsOptional()
+  @IsDateString()
+  renewalDate?: string;
+}
+```
+
+## Module Structure
+
+```
+src/
+  modules/
+    auth/          # Auth module (JWT, guards)
+    contracts/     # Contracts CRUD
+    users/         # User management
+    upload/        # File upload (MinIO)
+  common/
+    guards/        # Auth guards
+    interceptors/  # Response interceptors
+    filters/       # Exception filters
+```
+
+## Conventions
+
+- One module per domain entity.
+- Controllers handle HTTP only — business logic goes in services.
+- Use `@UseGuards(JwtAuthGuard)` on protected routes.
+- Return consistent response shapes: `{ data, message, statusCode }`.
+- Dispatch heavy work to BullMQ queues — never block the request cycle.

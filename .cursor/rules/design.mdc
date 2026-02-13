@@ -1,0 +1,55 @@
+---
+description: All UI implementation must match the designs in pencil.pen
+alwaysApply: true
+---
+
+# Design Source of Truth
+
+All frontend implementation must be based on the design file `pencil.pen` at the project root.
+
+## Workflow
+
+1. **Before implementing any page or component**, read the design from `pencil.pen` using the Pencil MCP tools (`batch_get`, `get_screenshot`).
+2. **Match the design exactly** — colors, spacing, typography, layout, and component structure.
+3. **Never guess** styles or layouts. Always reference the `.pen` file for the correct values.
+
+## How to Read the Design
+
+- Use `batch_get` to inspect node properties (colors, fonts, padding, gaps, border radius, etc.).
+- Use `get_screenshot` to visually verify what a screen or component looks like.
+- Use `search_all_unique_properties` to extract color palettes and spacing tokens from specific screens.
+
+## Design Screens in pencil.pen
+
+| Screen | Description |
+|--------|-------------|
+| Landing Page | Public homepage with hero, features, social proof, CTA |
+| Dashboard | Authenticated user dashboard |
+| Pricing Page | Plan comparison |
+| Upload Contract | File upload with dropzone |
+| Contracts List | User's contracts table |
+| Contract Detail | Single contract view with clauses |
+| Sign In / Sign Up | Authentication pages |
+| Settings, Billing, Help | Account management pages |
+| Onboarding – Processing | File analysis progress |
+| Onboarding – Sign In Required | Post-analysis auth prompt |
+| Onboarding – Add Details | Profile completion form |
+| Admin Dashboard, Users, Contracts | Admin panel pages |
+| Admin CRUD Modals | Add, View, Edit, Delete user modals |
+
+## Color Themes
+
+- **Public / User pages**: Warm orange accent (`#EA580C`), off-white background (`#FFFBF5`)
+- **Admin pages**: Deep indigo accent (`#4F46E5`), dark sidebar (`#1E1B4B`)
+- **Logo**: `file-search` icon, 32x32 mark, orange for public, indigo for admin
+
+## Key Fonts
+
+- **Headings**: Space Grotesk (600–700 weight)
+- **Body**: Inter (400–500 weight)
+
+## Rules
+
+- Do not introduce new colors or fonts that are not in the design.
+- If a component exists in the design, implement it to match — do not substitute with a different layout.
+- When in doubt, take a screenshot of the relevant node and compare against your implementation.

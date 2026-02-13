@@ -1,0 +1,69 @@
+---
+description: TypeORM database package – entities, migrations, seeders
+globs: packages/database/**/*.ts
+alwaysApply: false
+---
+
+# Database Package (packages/database)
+
+Shared TypeORM package used by both API and Worker apps.
+
+## Entities
+
+- One file per entity in `src/entities/`.
+- Use decorators: `@Entity()`, `@Column()`, `@PrimaryGeneratedColumn("uuid")`.
+- Always add `createdAt` and `updatedAt` timestamp columns.
+- Export all entities from `src/entities/index.ts`.
+
+```ts
+// ✅ GOOD
+@Entity("contracts")
+export class Contract {
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
+
+  @Column()
+  name: string;
+
+  @Column({ type: "enum", enum: ContractStatus, default: ContractStatus.PENDING })
+  status: ContractStatus;
+
+  @ManyToOne(() => User, (user) => user.contracts)
+  @JoinColumn({ name: "user_id" })
+  user: User;
+
+  @CreateDateColumn({ name: "created_at" })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: "updated_at" })
+  updatedAt: Date;
+}
+```
+
+## Migrations
+
+- Auto-generate: `npx typeorm migration:generate -d src/data-source.ts src/migrations/<Name>`
+- File naming: timestamp prefix is auto-generated (e.g., `1700000000000-AddClausesTable.ts`).
+- Never edit a migration that has already been run in any environment.
+- Each migration must have both `up()` and `down()` methods.
+
+## Seeders
+
+- Seed files in `src/seeds/`. Each seed is a standalone runnable script.
+- Use `DataSource.initialize()` → insert data → `DataSource.destroy()`.
+- Make seeds idempotent — use `upsert` or check existence before inserting.
+- Separate seed files by domain: `seed-users.ts`, `seed-contracts.ts`.
+
+## Column Naming
+
+- Use **snake_case** for database column names via `@Column({ name: "column_name" })`.
+- Use **camelCase** for TypeScript property names.
+- Table names are **plural snake_case** (e.g., `contracts`, `contract_clauses`).
+
+## Exports
+
+Export from package root so apps import cleanly:
+
+```ts
+import { Contract, User, Clause } from "@clausehunter/database";
+```

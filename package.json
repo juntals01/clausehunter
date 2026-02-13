@@ -1,0 +1,29 @@
+{
+  "name": "clausehunter",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "npm@10.8.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "docker-compose up -d && turbo run dev --parallel",
+    "dev:services": "docker-compose up -d",
+    "dev:apps": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "migration:run": "turbo run migration:run --filter=@clausehunter/database",
+    "seed": "turbo run seed --filter=@clausehunter/database",
+    "reset:all": "npm run reset:db && npm run reset:storage",
+    "reset:db": "docker-compose exec -T postgres psql -U clausehunter -d postgres -c 'DROP DATABASE IF EXISTS clausehunter;' && docker-compose exec -T postgres psql -U clausehunter -d postgres -c 'CREATE DATABASE clausehunter;' && npm run migration:run && npm run seed",
+    "reset:storage": "node --import=dotenv/config scripts/reset-minio.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "turbo": "^1.11.0",
+    "dotenv": "^16.3.1"
+  }
+}

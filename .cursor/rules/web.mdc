@@ -1,0 +1,72 @@
+---
+description: Next.js web app conventions – shadcn/ui, Zod validation, React Hook Form
+globs: apps/web/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Web App (apps/web)
+
+Next.js 14 App Router with TypeScript, Tailwind CSS, shadcn/ui components.
+
+## UI Components
+
+- Use **shadcn/ui** for all form controls, buttons, dialogs, tables, and layout primitives.
+- Import from `@/components/ui/*`. Never build custom inputs, selects, or modals from scratch.
+- Use shadcn `<Form>`, `<FormField>`, `<FormItem>`, `<FormLabel>`, `<FormControl>`, `<FormMessage>` wrappers for every form.
+
+## Form Validation
+
+- Define schemas with **Zod** in a colocated `schema.ts` file next to the page or component.
+- Use `@hookform/resolvers/zod` to connect Zod schemas to React Hook Form.
+- Never validate manually — always let `useForm` + `zodResolver` handle it.
+
+```tsx
+// ✅ GOOD
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const schema = z.object({
+  email: z.string().email("Invalid email"),
+  name: z.string().min(2, "Name is required"),
+});
+
+type FormValues = z.infer<typeof schema>;
+
+const form = useForm<FormValues>({
+  resolver: zodResolver(schema),
+  defaultValues: { email: "", name: "" },
+});
+```
+
+## Data Fetching
+
+- Use **TanStack Query** (React Query) for all server state.
+- Wrap API calls in custom hooks: `useContracts()`, `useUploadContract()`, etc.
+- Use `axios` instance from `@/lib/api` with base URL and auth headers preconfigured.
+
+## File Structure
+
+```
+app/
+  (public)/        # Public pages (landing, pricing)
+  (auth)/          # Sign in, sign up, onboarding
+  (dashboard)/     # Authenticated user pages
+  admin/           # Admin panel
+components/
+  ui/              # shadcn/ui components
+  forms/           # Reusable form components
+  layout/          # Shared layout (sidebar, header)
+lib/
+  api.ts           # Axios instance
+  utils.ts         # cn() and helpers
+hooks/             # Custom React hooks
+```
+
+## Conventions
+
+- Client components: `"use client"` at the top.
+- Server components by default — only add `"use client"` when needed (hooks, events, browser APIs).
+- Shared types come from `@clausehunter/shared`.
+- Use `cn()` from `@/lib/utils` for conditional class merging.
+- Toast notifications via shadcn `<Toaster>` + `useToast()`.

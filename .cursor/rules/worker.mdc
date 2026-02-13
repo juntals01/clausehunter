@@ -1,0 +1,79 @@
+---
+description: NestJS worker conventions – BullMQ job processing, queues, retry logic
+globs: apps/worker/**/*.ts
+alwaysApply: false
+---
+
+# Worker (apps/worker)
+
+NestJS background worker using BullMQ for job processing with Redis.
+
+## BullMQ Setup
+
+- Define queues in a shared module. Each domain gets its own queue name.
+- Use `@Processor('queue-name')` decorator on processor classes.
+- Use `@Process('job-name')` decorator on handler methods.
+
+```ts
+// ✅ GOOD
+@Processor("contract-processing")
+export class ContractProcessor {
+  @Process("analyze")
+  async handleAnalyze(job: Job<AnalyzePayload>): Promise<void> {
+    const { contractId, fileKey } = job.data;
+    await job.updateProgress(10);
+    // ... extraction logic
+    await job.updateProgress(100);
+  }
+}
+```
+
+## Queue Names
+
+Use kebab-case, domain-scoped queue names:
+- `contract-processing` — PDF parsing, OCR, clause extraction
+- `email-notifications` — Renewal reminders, alerts
+- `document-analysis` — AI-powered clause detection
+
+## Job Design
+
+- Keep job payloads small — pass IDs, not full objects.
+- Use `job.updateProgress()` to report progress back to the API.
+- Set appropriate `attempts` and `backoff` for retries.
+- Always handle failures gracefully with `@OnQueueFailed`.
+
+```ts
+// ✅ GOOD — adding a job from the API
+await this.contractQueue.add("analyze", {
+  contractId: contract.id,
+  fileKey: contract.fileKey,
+}, {
+  attempts: 3,
+  backoff: { type: "exponential", delay: 5000 },
+  removeOnComplete: true,
+  removeOnFail: false,
+});
+```
+
+## Processing Pipeline
+
+Typical contract processing flow:
+1. **Extract text** — PDF parse or OCR (Tesseract.js) for scanned docs
+2. **AI analysis** — Send text to Kimi API for clause detection
+3. **Save results** — Write extracted clauses and dates back to DB
+4. **Notify** — Queue email notification if renewal date is near
+
+## Error Handling
+
+- Wrap processor logic in try/catch. Log errors with context (jobId, contractId).
+- Use dead-letter queues for permanently failed jobs.
+- Never swallow errors silently — always log and optionally re-throw.
+
+## Conventions
+
+- One processor class per queue.
+- Processor classes go in `src/processors/`.
+- Shared utilities (OCR, AI client) go in `src/services/`.
+- Use `@clausehunter/database` for entity access and TypeORM repositories.
+- Use `@clausehunter/shared` for shared types and constants.
+- Connect to the same Redis instance as the API (via `REDIS_HOST`, `REDIS_PORT` env vars).

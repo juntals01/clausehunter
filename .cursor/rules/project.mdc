@@ -1,0 +1,49 @@
+---
+description: ClauseHunter monorepo – project structure, shared conventions, tech stack
+alwaysApply: true
+---
+
+# ClauseHunter – Project Rules
+
+Turborepo monorepo for contract analysis SaaS.
+
+## Architecture
+
+```
+apps/
+  web/       → Next.js 14 App Router (frontend)
+  api/       → NestJS REST API
+  worker/    → NestJS BullMQ background worker
+packages/
+  database/  → TypeORM entities, migrations, seeders (PostgreSQL)
+  shared/    → Shared Zod schemas, types, constants
+```
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 14, Tailwind, shadcn/ui, React Hook Form, Zod, TanStack Query |
+| API | NestJS, TypeORM, class-validator, JWT auth, MinIO (file storage) |
+| Worker | NestJS, BullMQ, Tesseract.js (OCR), Kimi AI (clause extraction) |
+| Database | PostgreSQL 16 via TypeORM |
+| Queue | Redis 7 + BullMQ |
+| Infra | Docker Compose, Turborepo |
+
+## Shared Code
+
+- **Types/schemas**: Define in `packages/shared`, import as `@clausehunter/shared`.
+- **Entities**: Define in `packages/database`, import as `@clausehunter/database`.
+- Never duplicate types between apps. Always use the shared packages.
+
+## Environment
+
+- All env vars in `.env` at project root. Reference `.env.example` for required vars.
+- Never hardcode secrets, API keys, or connection strings.
+
+## Commands
+
+- `npm run dev` — Start all services (Docker + apps)
+- `npm run migration:run` — Run TypeORM migrations
+- `npm run seed` — Seed database
+- `npm run build` — Build all apps

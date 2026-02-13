@@ -1,0 +1,27 @@
+{
+    "name": "@clausehunter/database",
+    "version": "1.0.0",
+    "main": "./dist/index.js",
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "typeorm": "typeorm-ts-node-commonjs",
+        "migration:generate": "npm run typeorm -- migration:generate -d src/data-source.ts",
+        "migration:run": "npm run typeorm -- migration:run -d src/data-source.ts",
+        "migration:revert": "npm run typeorm -- migration:revert -d src/data-source.ts",
+        "seed": "ts-node src/seeds/run-seed.ts"
+    },
+    "types": "./dist/index.d.ts",
+    "dependencies": {
+        "@types/bcrypt": "^6.0.0",
+        "bcrypt": "^6.0.0",
+        "pg": "^8.11.3",
+        "reflect-metadata": "^0.2.1",
+        "typeorm": "^0.3.19"
+    },
+    "devDependencies": {
+        "@types/node": "^20.11.0",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.3.3"
+    }
+}

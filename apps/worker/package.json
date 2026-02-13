@@ -1,0 +1,39 @@
+{
+    "name": "@clausehunter/worker",
+    "version": "1.0.0",
+    "scripts": {
+        "start": "nest start",
+        "dev": "nest start --watch",
+        "start:dev": "nest start --watch",
+        "start:debug": "nest start --debug --watch",
+        "build": "nest build"
+    },
+    "dependencies": {
+        "@clausehunter/database": "*",
+        "@clausehunter/shared": "*",
+        "@io-orkes/conductor-javascript": "^2.4.1",
+        "@nestjs/common": "^10.3.0",
+        "@nestjs/config": "^3.1.1",
+        "@nestjs/core": "^10.3.0",
+        "@nestjs/typeorm": "^11.0.0",
+        "axios": "^1.13.4",
+        "canvas": "^2.11.2",
+        "minio": "^8.0.6",
+        "node-cron": "^3.0.3",
+        "pdf-lib": "^1.17.1",
+        "pdf-parse": "^1.1.4",
+        "pdf2pic": "^3.2.0",
+        "reflect-metadata": "^0.2.1",
+        "rxjs": "^7.8.1",
+        "tesseract.js": "^5.0.4",
+        "typeorm": "^0.3.28"
+    },
+    "devDependencies": {
+        "@nestjs/cli": "^10.3.0",
+        "@nestjs/schematics": "^10.1.0",
+        "@types/node": "^20.11.0",
+        "@types/node-cron": "^3.0.11",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.3.3"
+    }
+}
