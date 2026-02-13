@@ -9,6 +9,7 @@ const nextConfig = {
     transpilePackages: ['@clausehunter/shared'],
     env: {
         NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+        NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://clausehunter.com',
     },
 }
 

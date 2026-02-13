@@ -1,0 +1,26 @@
+---
+description: Git workflow shortcut - when user says "push", stage all, commit, and push to GitHub
+alwaysApply: true
+---
+
+# Git Push Shortcut
+
+When the user says **"push"** (with or without a commit message):
+
+1. Run `git add -A` to stage all changes
+2. Run `git diff --cached --stat` to see what's being committed
+3. Write a concise, meaningful commit message based on the staged changes
+4. Run `git commit -m "<message>"`
+5. Run `git push`
+
+## Commit Message Format
+
+- Use imperative mood: "Add", "Fix", "Update", "Remove"
+- Keep the first line under 72 characters
+- If the user provides a message after "push", use it as-is
+- If no message is provided, summarize the changes automatically
+
+## Examples
+
+- User says: `push` → auto-generate message from diff, commit, and push
+- User says: `push fix login bug` → commit with "Fix login bug", then push

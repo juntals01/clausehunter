@@ -1,11 +1,69 @@
 import "./globals.css"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Providers } from "@/lib/providers"
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://clausehunter.com"
+
 export const metadata: Metadata = {
-  title: "Clause Hunter - Contract Management",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Clause Hunter - AI-Powered Contract Renewal Tracking",
+    template: "%s | Clause Hunter",
+  },
   description:
-    "Stop accidental contract renewals with AI-powered contract analysis",
+    "Stop accidental contract auto-renewals. Upload your contracts and let AI extract key clauses, track renewal dates, and send timely alerts before deadlines.",
+  keywords: [
+    "contract management",
+    "contract renewal tracking",
+    "auto-renewal prevention",
+    "AI contract analysis",
+    "clause extraction",
+    "contract deadlines",
+    "renewal alerts",
+    "SaaS contract management",
+    "vendor management",
+    "contract OCR",
+  ],
+  authors: [{ name: "Clause Hunter" }],
+  creator: "Clause Hunter",
+  publisher: "Clause Hunter",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: siteUrl,
+    siteName: "Clause Hunter",
+    title: "Clause Hunter - AI-Powered Contract Renewal Tracking",
+    description:
+      "Stop accidental contract auto-renewals. Upload your contracts and let AI extract key clauses, track renewal dates, and send timely alerts.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Clause Hunter - AI-Powered Contract Renewal Tracking",
+    description:
+      "Stop accidental contract auto-renewals. Upload your contracts and let AI extract key clauses, track renewal dates, and send timely alerts.",
+    creator: "@clausehunter",
+  },
+  alternates: {
+    canonical: siteUrl,
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: "#EA580C",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 }
 
 export default function RootLayout({
@@ -15,6 +73,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-icon.svg" />
+      </head>
       <body>
         <Providers>{children}</Providers>
       </body>

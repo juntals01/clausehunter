@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import {
   Sparkles,
@@ -13,6 +14,13 @@ import {
   FileCheck,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+
+export const metadata: Metadata = {
+  title: "Clause Hunter - Never Miss a Contract Renewal Again",
+  description:
+    "Upload your contracts and let AI extract key clauses, track renewal dates, and send timely alerts. Stop accidental auto-renewals and save thousands.",
+  alternates: { canonical: "/" },
+}
 
 const steps = [
   {

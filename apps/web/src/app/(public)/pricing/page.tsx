@@ -1,6 +1,14 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { Check, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+
+export const metadata: Metadata = {
+  title: "Pricing",
+  description:
+    "Choose the right Clause Hunter plan for your team. From free starter to enterprise, get AI-powered contract analysis and renewal tracking at any scale.",
+  alternates: { canonical: "/pricing" },
+}
 
 const plans = [
   {
