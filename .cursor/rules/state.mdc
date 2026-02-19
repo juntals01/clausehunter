@@ -1,0 +1,56 @@
+# State Management (apps/web)
+
+Use **Zustand** for all client-side state beyond simple component-local `useState`.
+
+## Rules
+
+- Stores live in `apps/web/src/lib/stores/`.
+- One file per store: `use-<name>-store.ts` (e.g., `onboarding-store.ts`).
+- Export a single `use<Name>Store` hook from each file.
+- Use the slice pattern when a store grows beyond ~5 state fields.
+- **Never** use React Context (`createContext`) for global/shared state — use Zustand instead.
+- Simple component-local state (`useState`, `useReducer`) is fine for UI-only concerns (open/close, form inputs).
+
+## Example
+
+```ts
+import { create } from 'zustand'
+
+interface CounterState {
+  count: number
+  increment: () => void
+  reset: () => void
+}
+
+export const useCounterStore = create<CounterState>((set) => ({
+  count: 0,
+  increment: () => set((s) => ({ count: s.count + 1 })),
+  reset: () => set({ count: 0 }),
+}))
+```
+
+## Accessing outside React
+
+Use `useStore.getState()` to read/write from non-React code (event handlers, callbacks, etc.):
+
+```ts
+useCounterStore.getState().increment()
+```
+
+## Persistence
+
+If a store needs to survive page refresh, use the `persist` middleware:
+
+```ts
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+
+export const useSettingsStore = create(
+  persist<SettingsState>(
+    (set) => ({ ... }),
+    { name: 'settings-storage' }
+  )
+)
+```
+
+Note: Do **not** persist stores that hold non-serializable values (e.g., `File` objects).

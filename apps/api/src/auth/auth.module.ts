@@ -3,11 +3,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { User } from '@clausehunter/database';
+import { BullModule } from '@nestjs/bullmq';
+import { User } from '@expirationreminderai/database';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { GoogleStrategy } from './google.strategy';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
     imports: [
@@ -20,6 +22,8 @@ import { GoogleStrategy } from './google.strategy';
                 signOptions: { expiresIn: config.get('JWT_EXPIRES_IN', '7d') },
             }),
         }),
+        BullModule.registerQueue({ name: 'email-send' }),
+        NotificationsModule,
     ],
     controllers: [AuthController],
     providers: [AuthService, JwtStrategy, GoogleStrategy],

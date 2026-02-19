@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { UserAvatar } from "@/components/user-avatar"
 import { Input } from "@/components/ui/input"
 import {
   AddUserModal,
@@ -26,14 +27,6 @@ import { useUsers, useUserCount, type ApiUser } from "@/lib/hooks/use-users"
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-}
 
 function capitalize(str: string): string {
   if (!str) return ""
@@ -258,9 +251,12 @@ export default function AdminUsersPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="h-9 w-9 rounded-full bg-[#4F46E5] flex items-center justify-center text-white text-xs font-semibold shrink-0">
-                              {getInitials(user.name)}
-                            </div>
+                            <UserAvatar
+                              name={user.name}
+                              size={36}
+                              fallbackClassName="bg-[#4F46E5]"
+                              className="shrink-0"
+                            />
                             <div>
                               <p className="text-sm font-medium text-gray-900">{user.name}</p>
                               <p className="text-xs text-gray-500">{user.email}</p>

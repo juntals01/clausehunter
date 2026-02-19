@@ -9,7 +9,7 @@ export function Footer() {
           <div className="flex items-center justify-center w-8 h-8 bg-[#EA580C] rounded-[10px]">
             <FileSearch className="w-[18px] h-[18px] text-white" />
           </div>
-          <span className="font-display text-sm font-semibold text-[#0D0D0D]">Clause Hunter</span>
+          <span className="font-display text-sm font-semibold text-[#0D0D0D]">Expiration Reminder AI</span>
         </Link>
         <span className="text-[13px] text-[#7A7A7A]">&copy; 2026</span>
       </div>

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import {
   Search,
   Upload,
-  Bell,
   FileText,
   ArrowRight,
   AlertTriangle,
@@ -17,7 +16,8 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useContracts, type DashboardContract } from "@/lib/hooks/use-contracts"
-import { useAuth } from "@/lib/auth-context"
+import { UserDropdown } from "@/components/user-dropdown"
+import { NotificationDropdown } from "@/components/notification-dropdown"
 
 const filters = ["All", "Safe", "Warning", "Urgent", "Review"] as const
 type Filter = (typeof filters)[number]
@@ -43,7 +43,7 @@ const statusBadge = (status: StatusLabel) => {
     Urgent: "bg-red-50 text-red-600",
     Warning: "bg-amber-50 text-amber-600",
     Safe: "bg-green-50 text-green-600",
-    Review: "bg-gray-100 text-gray-500",
+    Review: "bg-yellow-50 text-yellow-600",
   }
   return (
     <span
@@ -52,6 +52,7 @@ const statusBadge = (status: StatusLabel) => {
         styles[status]
       )}
     >
+      {status === "Review" && <AlertTriangle className="h-3 w-3" />}
       {status}
     </span>
   )
@@ -67,16 +68,6 @@ function formatShortDate(dateStr: string | null): string {
   if (!dateStr) return "—"
   const d = new Date(dateStr)
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
-}
-
-function getInitials(name: string | undefined | null): string {
-  if (!name) return "U"
-  return name
-    .split(" ")
-    .map((p) => p[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2)
 }
 
 function computeCancelByDate(endDate: string | null, noticeDays: number | null): string {
@@ -125,7 +116,6 @@ function LoadingSkeleton() {
 export default function DashboardPage() {
   const [activeFilter, setActiveFilter] = useState<Filter>("All")
   const { data: contracts, isLoading, error } = useContracts()
-  const { user } = useAuth()
   const router = useRouter()
 
   const metrics = useMemo(() => {
@@ -220,13 +210,8 @@ export default function DashboardPage() {
           >
             <Upload className="h-4 w-4" />
           </a>
-          <button className="relative rounded-lg p-2 text-[#78716C] hover:bg-white hover:text-[#1C1917] transition-colors">
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#EA580C]" />
-          </button>
-          <div className="hidden sm:flex h-8 w-8 rounded-full bg-[#EA580C] text-white items-center justify-center text-sm font-medium">
-            {getInitials(user?.name)}
-          </div>
+          <NotificationDropdown />
+          <div className="hidden sm:block"><UserDropdown /></div>
         </div>
       </div>
 

@@ -6,7 +6,6 @@ import { useDropzone } from "react-dropzone"
 import {
   Search,
   Upload,
-  Bell,
   CloudUpload,
   FileText,
   Sparkles,
@@ -17,23 +16,14 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useUploadContract } from "@/lib/hooks/use-contracts"
-import { useAuth } from "@/lib/auth-context"
+import { UserDropdown } from "@/components/user-dropdown"
+import { NotificationDropdown } from "@/components/notification-dropdown"
 
 type StepStatus = "done" | "active" | "pending"
 
 interface ProcessingStep {
   label: string
   status: StepStatus
-}
-
-function getInitials(name: string | undefined | null): string {
-  if (!name) return "U"
-  return name
-    .split(" ")
-    .map((p) => p[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2)
 }
 
 export default function UploadPage() {
@@ -45,7 +35,6 @@ export default function UploadPage() {
 
   const router = useRouter()
   const uploadMutation = useUploadContract()
-  const { user } = useAuth()
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -77,9 +66,12 @@ export default function UploadPage() {
     [uploadMutation, router]
   )
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
-    accept: { "application/pdf": [".pdf"] },
+    accept: {
+      "application/pdf": [".pdf"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+    },
     maxFiles: 1,
     disabled: uploadPhase === "uploading" || uploadPhase === "processing",
   })
@@ -137,13 +129,8 @@ export default function UploadPage() {
             <Upload className="h-4 w-4" />
             Upload contract
           </a>
-          <button className="relative rounded-lg p-2 text-[#78716C] hover:bg-white hover:text-[#1C1917] transition-colors">
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#EA580C]" />
-          </button>
-          <div className="hidden sm:flex h-8 w-8 rounded-full bg-[#EA580C] text-white items-center justify-center text-sm font-medium">
-            {getInitials(user?.name)}
-          </div>
+          <NotificationDropdown />
+          <div className="hidden sm:block"><UserDropdown /></div>
         </div>
       </div>
 
@@ -186,6 +173,10 @@ export default function UploadPage() {
             </p>
             <button
               type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                open()
+              }}
               className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#EA580C] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#DC4A04] transition-colors"
             >
               <Upload className="h-4 w-4" />

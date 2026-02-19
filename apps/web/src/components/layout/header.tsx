@@ -16,7 +16,7 @@ export function Header() {
             <FileSearch className="w-[18px] h-[18px] text-white" />
           </div>
           <span className="font-display text-lg font-semibold text-[#1C1917]">
-            Clause Hunter
+            Expiration Reminder AI
           </span>
         </Link>
 

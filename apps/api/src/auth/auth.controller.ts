@@ -1,10 +1,13 @@
-import { Controller, Post, Get, Body, UseGuards, Request, Res } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Body, UseGuards, Request, Res } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -29,6 +32,24 @@ export class AuthController {
         const user = await this.authService.validateUser(req.user.id);
         if (!user) return req.user;
         return this.authService.sanitizeUser(user);
+    }
+
+    @Patch('profile')
+    @UseGuards(AuthGuard('jwt'))
+    updateProfile(@Request() req: any, @Body() dto: UpdateProfileDto) {
+        return this.authService.updateProfile(req.user.id, dto);
+    }
+
+    // ─── Password Reset ──────────────────────────────────────────────
+
+    @Post('forgot-password')
+    forgotPassword(@Body() dto: ForgotPasswordDto) {
+        return this.authService.forgotPassword(dto);
+    }
+
+    @Post('reset-password')
+    resetPassword(@Body() dto: ResetPasswordDto) {
+        return this.authService.resetPassword(dto);
     }
 
     // ─── Google OAuth ────────────────────────────────────────────────

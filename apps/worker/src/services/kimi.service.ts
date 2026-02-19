@@ -1,36 +1,52 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import {
     ContractExtraction,
     EXTRACTION_SYSTEM_PROMPT,
     EXTRACTION_USER_PROMPT,
-} from '@clausehunter/shared';
+} from '@expirationreminderai/shared';
 
 const MAX_CONTRACT_TEXT_LENGTH = 15_000;
+const GEMINI_OPENAI_URL = 'https://generativelanguage.googleapis.com/v1beta/openai';
 
+/**
+ * AI extraction service using Google Gemini (OpenAI-compatible endpoint).
+ * Uses GEMINI_API_KEY from .env (same key can be used for Vision + Gemini).
+ */
 @Injectable()
-export class KimiService {
-    private readonly apiKey: string;
-    private readonly baseUrl: string;
+export class KimiService implements OnModuleInit {
+    private apiKey: string;
+    private model: string;
 
-    constructor(private configService: ConfigService) {
-        this.apiKey = this.configService.get<string>('KIMI_API_KEY');
-        this.baseUrl = this.configService.get<string>(
-            'KIMI_API_ENDPOINT',
-            'https://api.moonshot.cn/v1',
-        );
+    constructor(private configService: ConfigService) { }
+
+    onModuleInit() {
+        this.apiKey = this.configService.get<string>('GEMINI_API_KEY', '');
+        this.model = this.configService.get<string>('GEMINI_MODEL', 'gemini-2.0-flash');
+
+        if (!this.apiKey) {
+            console.warn('[AI Extraction] GEMINI_API_KEY is not set — contract extraction will not work.');
+        } else {
+            console.log(`[AI Extraction] Google Gemini configured ✓ (model: ${this.model})`);
+        }
     }
 
     async extractContractData(text: string): Promise<ContractExtraction> {
+        if (!this.apiKey) {
+            throw new Error(
+                'GEMINI_API_KEY is not configured. Set it in your .env file.',
+            );
+        }
+
         const truncatedText = text.substring(0, MAX_CONTRACT_TEXT_LENGTH);
         const userPrompt = EXTRACTION_USER_PROMPT + truncatedText;
 
         try {
             const response = await axios.post(
-                `${this.baseUrl}/chat/completions`,
+                `${GEMINI_OPENAI_URL}/chat/completions`,
                 {
-                    model: 'moonshot-k2',
+                    model: this.model,
                     messages: [
                         {
                             role: 'system',
@@ -48,6 +64,7 @@ export class KimiService {
                         Authorization: `Bearer ${this.apiKey}`,
                         'Content-Type': 'application/json',
                     },
+                    timeout: 60_000,
                 },
             );
 
@@ -55,7 +72,7 @@ export class KimiService {
             return this.parseResponse(content);
         } catch (error) {
             console.error(
-                'Kimi API Error:',
+                '[AI Extraction] Gemini API Error:',
                 error.response?.data || error.message,
             );
             throw error;
@@ -91,8 +108,8 @@ export class KimiService {
                 summary: parsed.summary ?? null,
             };
         } catch (e) {
-            console.warn('Failed to parse Kimi JSON response:', content);
-            throw new Error('Invalid JSON response from AI');
+            console.warn('[AI Extraction] Failed to parse JSON response:', content);
+            throw new Error('Invalid JSON response from Gemini');
         }
     }
 }

@@ -6,7 +6,12 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { QueueModule } from './queue/queue.module';
 import { StorageModule } from './storage/storage.module';
-import { User, Contract, ContractText } from '@clausehunter/database';
+import { FeedbackModule } from './feedback/feedback.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { AdminEmailModule } from './admin-email/admin-email.module';
+import { ContactModule } from './contact/contact.module';
+import { BillingModule } from './billing/billing.module';
+import { User, Contract, ContractText, Feedback, Notification, Subscription } from '@expirationreminderai/database';
 
 @Module({
     imports: [
@@ -20,10 +25,10 @@ import { User, Contract, ContractText } from '@clausehunter/database';
                 type: 'postgres',
                 host: config.get('DATABASE_HOST', 'localhost'),
                 port: config.get('DATABASE_PORT', 5432),
-                username: config.get('DATABASE_USER', 'clausehunter'),
-                password: config.get('DATABASE_PASSWORD', 'clausehunter'),
-                database: config.get('DATABASE_NAME', 'clausehunter'),
-                entities: [User, Contract, ContractText],
+                username: config.get('DATABASE_USER', 'expirationreminderai'),
+                password: config.get('DATABASE_PASSWORD', 'expirationreminderai'),
+                database: config.get('DATABASE_NAME', 'expirationreminderai'),
+                entities: [User, Contract, ContractText, Feedback, Notification, Subscription],
                 synchronize: false,
                 logging: config.get('NODE_ENV') === 'development',
             }),
@@ -33,6 +38,11 @@ import { User, Contract, ContractText } from '@clausehunter/database';
         AuthModule,
         UsersModule,
         ContractsModule,
+        FeedbackModule,
+        NotificationsModule,
+        AdminEmailModule,
+        ContactModule,
+        BillingModule,
     ],
 })
 export class AppModule {}

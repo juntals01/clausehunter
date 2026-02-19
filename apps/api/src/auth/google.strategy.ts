@@ -24,8 +24,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         profile: Profile,
         done: VerifyCallback,
     ): Promise<void> {
-        const { id, emails, displayName } = profile;
+        const { id, emails, displayName, photos } = profile;
         const email = emails?.[0]?.value;
+        const avatar = photos?.[0]?.value || null;
 
         if (!email) {
             done(new Error('No email found in Google profile'), undefined);
@@ -36,6 +37,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
             id,
             email,
             displayName || email.split('@')[0],
+            avatar,
         );
 
         done(null, result);

@@ -74,6 +74,6 @@ Typical contract processing flow:
 - One processor class per queue.
 - Processor classes go in `src/processors/`.
 - Shared utilities (OCR, AI client) go in `src/services/`.
-- Use `@clausehunter/database` for entity access and TypeORM repositories.
-- Use `@clausehunter/shared` for shared types and constants.
+- Use `@expirationreminderai/database` for entity access and TypeORM repositories.
+- Use `@expirationreminderai/shared` for shared types and constants.
 - Connect to the same Redis instance as the API (via `REDIS_HOST`, `REDIS_PORT` env vars).

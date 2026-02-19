@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "Learn how Clause Hunter collects, uses, and protects your data. Your contract documents are encrypted and never shared with third parties.",
+    "Learn how Expiration Reminder AI collects, uses, and protects your data. Your contract documents are encrypted and never shared with third parties.",
   alternates: { canonical: "/privacy" },
 }
 
@@ -29,14 +29,14 @@ export default function PrivacyPage() {
           <div className="flex flex-col gap-3">
             <h2 className="font-display text-xl font-semibold text-[#1C1917]">1. Information We Collect</h2>
             <p className="text-[#57534E] leading-relaxed">
-              When you use Clause Hunter, we collect information you provide directly, including your name, email address, company name, and the contract documents you upload for analysis. We also collect usage data such as log data, device information, and how you interact with our service.
+              When you use Expiration Reminder AI, we collect information you provide directly, including your name, email address, company name, and the contract documents you upload for analysis. We also collect usage data such as log data, device information, and how you interact with our service.
             </p>
           </div>
 
           <div className="flex flex-col gap-3">
             <h2 className="font-display text-xl font-semibold text-[#1C1917]">2. How We Use Your Information</h2>
             <p className="text-[#57534E] leading-relaxed">
-              We use the information we collect to provide, maintain, and improve Clause Hunter&apos;s services. This includes processing your contracts for clause extraction, sending renewal alerts, providing customer support, and communicating updates about the service.
+              We use the information we collect to provide, maintain, and improve Expiration Reminder AI&apos;s services. This includes processing your contracts for clause extraction, sending renewal alerts, providing customer support, and communicating updates about the service.
             </p>
           </div>
 
@@ -57,7 +57,7 @@ export default function PrivacyPage() {
           <div className="flex flex-col gap-3">
             <h2 className="font-display text-xl font-semibold text-[#1C1917]">5. Third-Party Services</h2>
             <p className="text-[#57534E] leading-relaxed">
-              Clause Hunter uses third-party services for hosting, analytics, and AI processing. These services are bound by their own privacy policies and our data processing agreements. We do not sell your personal information to third parties.
+              Expiration Reminder AI uses third-party services for hosting, analytics, and AI processing. These services are bound by their own privacy policies and our data processing agreements. We do not sell your personal information to third parties.
             </p>
           </div>
 
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
           <div className="flex flex-col gap-3">
             <h2 className="font-display text-xl font-semibold text-[#1C1917]">7. Your Rights</h2>
             <p className="text-[#57534E] leading-relaxed">
-              You have the right to access, correct, or delete your personal data. You may also request a copy of your data in a portable format. To exercise these rights, please contact us at privacy@clausehunter.com.
+              You have the right to access, correct, or delete your personal data. You may also request a copy of your data in a portable format. To exercise these rights, please contact us at privacy@expirationreminderai.com.
             </p>
           </div>
 
@@ -86,8 +86,8 @@ export default function PrivacyPage() {
             <h2 className="font-display text-xl font-semibold text-[#1C1917]">9. Contact Us</h2>
             <p className="text-[#57534E] leading-relaxed">
               If you have questions about this privacy policy, please contact us at{" "}
-              <a href="mailto:privacy@clausehunter.com" className="text-[#EA580C] hover:underline">
-                privacy@clausehunter.com
+              <a href="mailto:privacy@expirationreminderai.com" className="text-[#EA580C] hover:underline">
+                privacy@expirationreminderai.com
               </a>.
             </p>
           </div>

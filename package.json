@@ -1,5 +1,5 @@
 {
-  "name": "clausehunter",
+  "name": "expirationreminderai",
   "version": "1.0.0",
   "private": true,
   "packageManager": "npm@10.8.2",
@@ -14,10 +14,10 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "migration:run": "turbo run migration:run --filter=@clausehunter/database",
-    "seed": "turbo run seed --filter=@clausehunter/database",
+    "migration:run": "turbo run migration:run --filter=@expirationreminderai/database",
+    "seed": "turbo run seed --filter=@expirationreminderai/database",
     "reset:all": "npm run reset:db && npm run reset:storage",
-    "reset:db": "docker-compose exec -T postgres psql -U clausehunter -d postgres -c 'DROP DATABASE IF EXISTS clausehunter;' && docker-compose exec -T postgres psql -U clausehunter -d postgres -c 'CREATE DATABASE clausehunter;' && npm run migration:run && npm run seed",
+    "reset:db": "docker-compose exec -T postgres psql -U expirationreminderai -d postgres -c 'DROP DATABASE IF EXISTS expirationreminderai;' && docker-compose exec -T postgres psql -U expirationreminderai -d postgres -c 'CREATE DATABASE expirationreminderai;' && npm run migration:run && npm run seed",
     "reset:storage": "node --import=dotenv/config scripts/reset-minio.mjs"
   },
   "devDependencies": {

@@ -18,6 +18,7 @@ import { ConfigService } from '@nestjs/config';
             { name: 'contract-ocr' },
             { name: 'contract-extract' },
             { name: 'email-alerts' },
+            { name: 'email-send' },
         ),
     ],
     exports: [BullModule],

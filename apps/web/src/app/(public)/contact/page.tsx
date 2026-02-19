@@ -1,17 +1,43 @@
 "use client"
 
 import { useState } from "react"
-import { Mail, MapPin, Clock, Send } from "lucide-react"
+import { Clock, Send, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import api from "@/lib/api"
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState("")
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [subject, setSubject] = useState("")
+  const [message, setMessage] = useState("")
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitted(true)
+    setError("")
+    setSending(true)
+    try {
+      await api.post("/contact", { name, email, subject, message })
+      setSubmitted(true)
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to send message. Please try again.")
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const resetForm = () => {
+    setSubmitted(false)
+    setName("")
+    setEmail("")
+    setSubject("")
+    setMessage("")
+    setError("")
   }
 
   return (
@@ -35,28 +61,6 @@ export default function ContactPage() {
           {/* Contact Info */}
           <div className="flex flex-col gap-8 lg:w-[360px] shrink-0">
             <div className="flex flex-col gap-6">
-              <div className="flex items-start gap-4">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#FFF7ED] shrink-0">
-                  <Mail className="w-5 h-5 text-[#EA580C]" />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <h3 className="font-display text-sm font-semibold text-[#1C1917]">Email</h3>
-                  <a href="mailto:support@clausehunter.com" className="text-sm text-[#EA580C] hover:underline">
-                    support@clausehunter.com
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#FFF7ED] shrink-0">
-                  <MapPin className="w-5 h-5 text-[#EA580C]" />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <h3 className="font-display text-sm font-semibold text-[#1C1917]">Location</h3>
-                  <p className="text-sm text-[#57534E]">Remote-first company</p>
-                </div>
-              </div>
-
               <div className="flex items-start gap-4">
                 <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#FFF7ED] shrink-0">
                   <Clock className="w-5 h-5 text-[#EA580C]" />
@@ -88,7 +92,7 @@ export default function ContactPage() {
                   Thank you for reaching out. We&apos;ll get back to you within 24 hours.
                 </p>
                 <Button
-                  onClick={() => setSubmitted(false)}
+                  onClick={resetForm}
                   variant="outline"
                   className="mt-4 rounded-xl border-[#E7E5E4] text-[#57534E] hover:bg-[#FAFAF9]"
                 >
@@ -97,25 +101,38 @@ export default function ContactPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                <div className="flex flex-col sm:flex-row gap-5">
-                  <div className="flex flex-col gap-1.5 flex-1">
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" placeholder="John" required />
-                  </div>
-                  <div className="flex flex-col gap-1.5 flex-1">
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" placeholder="Doe" required />
-                  </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    placeholder="Your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
                 </div>
 
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="you@example.com" required />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
                 </div>
 
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="subject">Subject</Label>
-                  <Input id="subject" placeholder="How can we help?" required />
+                  <Input
+                    id="subject"
+                    placeholder="How can we help?"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    required
+                  />
                 </div>
 
                 <div className="flex flex-col gap-1.5">
@@ -124,16 +141,30 @@ export default function ContactPage() {
                     id="message"
                     rows={5}
                     placeholder="Tell us more about your question or issue..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
                     required
                     className="flex w-full rounded-lg border border-[#E7E5E4] bg-white px-3 py-2 text-sm placeholder:text-[#A8A29E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C]/20 focus-visible:border-[#EA580C] transition-colors resize-none"
                   />
                 </div>
 
+                {error && (
+                  <p className="text-sm text-red-600">{error}</p>
+                )}
+
                 <Button
                   type="submit"
-                  className="w-full sm:w-auto bg-[#EA580C] hover:bg-[#DC4A04] text-white rounded-xl py-3.5 h-auto text-sm font-semibold px-8"
+                  disabled={sending}
+                  className="w-full sm:w-auto bg-[#EA580C] hover:bg-[#DC4A04] text-white rounded-xl py-3.5 h-auto text-sm font-semibold px-8 disabled:opacity-50"
                 >
-                  Send Message
+                  {sending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Sending...
+                    </>
+                  ) : (
+                    "Send Message"
+                  )}
                 </Button>
               </form>
             )}

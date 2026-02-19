@@ -4,23 +4,64 @@ import { useState } from "react"
 import {
   Search,
   Upload,
-  Bell,
-  User,
   Shield,
   AlertTriangle,
   Lock,
   Trash2,
+  Loader2,
+  Check,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useAuth } from "@/lib/auth-context"
+import { useUpdateProfile } from "@/lib/hooks/use-profile"
+import { UserAvatar } from "@/components/user-avatar"
+import { UserDropdown } from "@/components/user-dropdown"
+import { NotificationDropdown } from "@/components/notification-dropdown"
 
 export default function AccountPage() {
+  const { user } = useAuth()
+  const updateProfile = useUpdateProfile()
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [passwordError, setPasswordError] = useState("")
+  const [passwordSuccess, setPasswordSuccess] = useState(false)
+
+  const handleChangePassword = async () => {
+    setPasswordError("")
+    setPasswordSuccess(false)
+
+    if (newPassword.length < 6) {
+      setPasswordError("New password must be at least 6 characters")
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Passwords do not match")
+      return
+    }
+
+    try {
+      await updateProfile.mutateAsync({
+        currentPassword: currentPassword || undefined,
+        newPassword,
+      })
+      setPasswordSuccess(true)
+      setCurrentPassword("")
+      setNewPassword("")
+      setConfirmPassword("")
+    } catch (err: any) {
+      setPasswordError(err.response?.data?.message || "Failed to change password")
+    }
+  }
+
+  const isGoogleOnly = user && !user.company && user.avatar // rough heuristic, but password field visibility handled below
 
   return (
     <div className="flex flex-col min-h-full">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-8 py-4 border-b border-[#E7E5E4]">
-        <div className="relative w-80">
+      <div className="flex items-center justify-between px-4 sm:px-8 py-4 border-b border-[#E7E5E4]">
+        <div className="relative w-full sm:w-80">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#78716C]" />
           <input
             type="text"
@@ -28,27 +69,24 @@ export default function AccountPage() {
             className="w-full rounded-lg border border-[#E7E5E4] bg-white py-2 pl-10 pr-4 text-sm text-[#1C1917] placeholder:text-[#78716C] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
           />
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 ml-4">
           <a
             href="/upload"
-            className="inline-flex items-center gap-2 rounded-lg bg-[#EA580C] px-4 py-2 text-sm font-medium text-white hover:bg-[#DC4A04] transition-colors"
+            className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-[#EA580C] px-4 py-2 text-sm font-medium text-white hover:bg-[#DC4A04] transition-colors"
           >
             <Upload className="h-4 w-4" />
             Upload contract
           </a>
-          <button className="relative rounded-lg p-2 text-[#78716C] hover:bg-white hover:text-[#1C1917] transition-colors">
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#EA580C]" />
-          </button>
-          <div className="h-8 w-8 rounded-full bg-[#EA580C] text-white flex items-center justify-center text-sm font-medium">
-            JD
+          <NotificationDropdown />
+          <div className="hidden sm:block">
+            <UserDropdown />
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-8 pb-8 pt-6 space-y-6">
-        <div className="max-w-2xl">
+      <div className="flex-1 px-4 sm:px-8 pb-8 pt-6 space-y-6">
+        <div>
           <h1 className="font-display text-2xl font-bold text-[#1C1917]">Account</h1>
           <p className="mt-1 text-sm text-[#78716C]">
             Manage your profile and security
@@ -57,16 +95,14 @@ export default function AccountPage() {
           {/* Profile Card */}
           <div className="mt-8 rounded-2xl border border-[#E7E5E4] bg-white p-6">
             <div className="flex items-center gap-5">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#EA580C] text-white text-xl font-bold font-display">
-                JD
-              </div>
+              <UserAvatar size={64} />
               <div>
                 <h2 className="font-display text-lg font-semibold text-[#1C1917]">
-                  John Doe
+                  {user?.name ?? "—"}
                 </h2>
-                <p className="text-sm text-[#78716C]">john@example.com</p>
-                <span className="mt-1 inline-flex items-center rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-medium text-[#EA580C]">
-                  Pro Member
+                <p className="text-sm text-[#78716C]">{user?.email ?? "—"}</p>
+                <span className="mt-1 inline-flex items-center rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-medium text-[#EA580C] capitalize">
+                  {user?.role ?? "user"}
                 </span>
               </div>
             </div>
@@ -87,9 +123,14 @@ export default function AccountPage() {
                 </label>
                 <input
                   type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="Enter current password"
                   className="w-full rounded-lg border border-[#E7E5E4] bg-white px-4 py-2.5 text-sm text-[#1C1917] placeholder:text-[#78716C] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
                 />
+                <p className="mt-1 text-xs text-[#78716C]">
+                  Leave blank if you signed up with Google and haven&apos;t set a password yet.
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-[#1C1917] mb-1.5">
@@ -97,6 +138,8 @@ export default function AccountPage() {
                 </label>
                 <input
                   type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Enter new password"
                   className="w-full rounded-lg border border-[#E7E5E4] bg-white px-4 py-2.5 text-sm text-[#1C1917] placeholder:text-[#78716C] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
                 />
@@ -107,12 +150,33 @@ export default function AccountPage() {
                 </label>
                 <input
                   type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm new password"
                   className="w-full rounded-lg border border-[#E7E5E4] bg-white px-4 py-2.5 text-sm text-[#1C1917] placeholder:text-[#78716C] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
                 />
               </div>
-              <button className="inline-flex items-center gap-2 rounded-lg bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#DC4A04] transition-colors">
-                <Lock className="h-4 w-4" />
+
+              {passwordError && (
+                <p className="text-sm text-red-600">{passwordError}</p>
+              )}
+              {passwordSuccess && (
+                <p className="flex items-center gap-1.5 text-sm text-green-600">
+                  <Check className="h-4 w-4" />
+                  Password changed successfully
+                </p>
+              )}
+
+              <button
+                onClick={handleChangePassword}
+                disabled={updateProfile.isPending || !newPassword}
+                className="inline-flex items-center gap-2 rounded-lg bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#DC4A04] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {updateProfile.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Lock className="h-4 w-4" />
+                )}
                 Change Password
               </button>
             </div>

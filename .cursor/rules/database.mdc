@@ -65,5 +65,5 @@ export class Contract {
 Export from package root so apps import cleanly:
 
 ```ts
-import { Contract, User, Clause } from "@clausehunter/database";
+import { Contract, User, Clause } from "@expirationreminderai/database";
 ```

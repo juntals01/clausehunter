@@ -1,4 +1,4 @@
-# Clause Hunter Lite
+# Expiration Reminder AI Lite
 
 **Tagline:** Stop accidental contract renewals.
 
@@ -24,7 +24,7 @@ A renewal-first contract tracking MVP that competes with ContractSafe by being f
 ## Project Structure
 
 ```
-clausehunter/
+expirationreminderai/
 ├── apps/
 │   ├── web/          # Next.js frontend
 │   ├── api/          # NestJS REST API
@@ -48,7 +48,7 @@ clausehunter/
 ### 1. Clone and Install
 
 ```bash
-cd /Users/norbertolibago/code/personal/clausehunter
+cd /Users/norbertolibago/code/personal/expirationreminderai
 npm install
 ```
 
@@ -64,7 +64,7 @@ Edit `.env`:
 
 ```env
 # Database
-DATABASE_URL=postgresql://clausehunter:clausehunter@localhost:5432/clausehunter
+DATABASE_URL=postgresql://expirationreminderai:expirationreminderai@localhost:5432/expirationreminderai
 
 # Redis
 REDIS_HOST=localhost
@@ -80,7 +80,7 @@ OCR_PROVIDER=tesseract
 # Email
 EMAIL_PROVIDER=sendgrid
 SENDGRID_API_KEY=your_sendgrid_key_here
-EMAIL_FROM=alerts@clausehunter.com
+EMAIL_FROM=alerts@expirationreminderai.com
 ALERT_EMAIL=your_email@example.com
 
 # API

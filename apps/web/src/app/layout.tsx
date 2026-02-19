@@ -2,13 +2,13 @@ import "./globals.css"
 import type { Metadata, Viewport } from "next"
 import { Providers } from "@/lib/providers"
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://clausehunter.com"
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://expirationreminderai.com"
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Clause Hunter - AI-Powered Contract Renewal Tracking",
-    template: "%s | Clause Hunter",
+    default: "Expiration Reminder AI - AI-Powered Contract Renewal Tracking",
+    template: "%s | Expiration Reminder AI",
   },
   description:
     "Stop accidental contract auto-renewals. Upload your contracts and let AI extract key clauses, track renewal dates, and send timely alerts before deadlines.",
@@ -24,9 +24,9 @@ export const metadata: Metadata = {
     "vendor management",
     "contract OCR",
   ],
-  authors: [{ name: "Clause Hunter" }],
-  creator: "Clause Hunter",
-  publisher: "Clause Hunter",
+  authors: [{ name: "Expiration Reminder AI" }],
+  creator: "Expiration Reminder AI",
+  publisher: "Expiration Reminder AI",
   robots: {
     index: true,
     follow: true,
@@ -42,17 +42,17 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: siteUrl,
-    siteName: "Clause Hunter",
-    title: "Clause Hunter - AI-Powered Contract Renewal Tracking",
+    siteName: "Expiration Reminder AI",
+    title: "Expiration Reminder AI - AI-Powered Contract Renewal Tracking",
     description:
       "Stop accidental contract auto-renewals. Upload your contracts and let AI extract key clauses, track renewal dates, and send timely alerts.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Clause Hunter - AI-Powered Contract Renewal Tracking",
+    title: "Expiration Reminder AI - AI-Powered Contract Renewal Tracking",
     description:
       "Stop accidental contract auto-renewals. Upload your contracts and let AI extract key clauses, track renewal dates, and send timely alerts.",
-    creator: "@clausehunter",
+    creator: "@expirationreminderai",
   },
   alternates: {
     canonical: siteUrl,

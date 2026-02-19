@@ -10,7 +10,7 @@ NestJS REST API with TypeORM, class-validator, and BullMQ job dispatching.
 
 ## TypeORM
 
-- Entities live in `packages/database/src/entities/`. Import from `@clausehunter/database`.
+- Entities live in `packages/database/src/entities/`. Import from `@expirationreminderai/database`.
 - Use the **repository pattern** — inject repositories via `@InjectRepository(Entity)`.
 - Never write raw SQL. Use QueryBuilder for complex queries.
 - Relations: always use decorators (`@OneToMany`, `@ManyToOne`, `@JoinColumn`).

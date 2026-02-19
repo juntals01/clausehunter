@@ -18,6 +18,7 @@ export interface User {
   role: string
   status: string
   company: string | null
+  avatar: string | null
   createdAt: string
 }
 

@@ -12,20 +12,20 @@ async function seed() {
         const contractRepo = AppDataSource.getRepository(Contract);
 
         // Seed admin user
-        const adminExists = await userRepo.findOne({ where: { email: 'admin@clausehunter.com' } });
+        const adminExists = await userRepo.findOne({ where: { email: 'admin@expirationreminderai.com' } });
         let admin: User;
         if (!adminExists) {
             const hash = await bcrypt.hash('admin123', 10);
             admin = userRepo.create({
                 name: 'Admin User',
-                email: 'admin@clausehunter.com',
+                email: 'admin@expirationreminderai.com',
                 passwordHash: hash,
                 role: 'admin',
                 status: 'active',
-                company: 'ClauseHunter',
+                company: 'ExpirationReminderAI',
             });
             await userRepo.save(admin);
-            console.log('Created admin user: admin@clausehunter.com / admin123');
+            console.log('Created admin user: admin@expirationreminderai.com / admin123');
         } else {
             admin = adminExists;
             console.log('Admin user already exists');

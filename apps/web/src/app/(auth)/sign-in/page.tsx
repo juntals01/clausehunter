@@ -65,7 +65,7 @@ export default function SignInPage() {
             <FileSearch className="w-[18px] h-[18px] text-white" />
           </div>
           <span className="font-display text-lg font-semibold text-white">
-            Clause Hunter
+            Expiration Reminder AI
           </span>
         </Link>
 
@@ -82,7 +82,7 @@ export default function SignInPage() {
           <div className="flex flex-col gap-4">
             <p className="text-white/90 text-lg leading-relaxed">
               <span className="text-[#EA580C] text-2xl font-serif">&ldquo;</span>
-              Clause Hunter saved us from a $12,000 auto-renewal we completely
+              Expiration Reminder AI saved us from a $12,000 auto-renewal we completely
               forgot about. It paid for itself in one contract.
               <span className="text-[#EA580C] text-2xl font-serif">&rdquo;</span>
             </p>
@@ -104,7 +104,7 @@ export default function SignInPage() {
             <FileSearch className="w-[18px] h-[18px] text-white" />
           </div>
           <span className="font-display text-lg font-semibold text-[#1C1917]">
-            Clause Hunter
+            Expiration Reminder AI
           </span>
         </Link>
 

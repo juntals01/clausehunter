@@ -67,6 +67,6 @@ hooks/             # Custom React hooks
 
 - Client components: `"use client"` at the top.
 - Server components by default — only add `"use client"` when needed (hooks, events, browser APIs).
-- Shared types come from `@clausehunter/shared`.
+- Shared types come from `@expirationreminderai/shared`.
 - Use `cn()` from `@/lib/utils` for conditional class merging.
 - Toast notifications via shadcn `<Toaster>` + `useToast()`.

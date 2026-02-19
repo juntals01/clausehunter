@@ -1,8 +1,10 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { Repository, IsNull, Not } from 'typeorm';
 import * as cron from 'node-cron';
-import { Contract } from '@clausehunter/database';
+import { Contract } from '@expirationreminderai/database';
 import { EmailService } from '../services/email.service';
 
 @Injectable()
@@ -11,11 +13,11 @@ export class EmailAlertsService implements OnModuleInit {
         @InjectRepository(Contract)
         private contractRepository: Repository<Contract>,
         private emailService: EmailService,
+        @InjectQueue('email-send') private emailQueue: Queue,
     ) { }
 
     onModuleInit() {
         // Run daily at 09:00 Asia/Manila (01:00 UTC)
-        // Cron format: minute hour day month weekday
         cron.schedule('0 1 * * *', () => {
             this.sendDailyAlerts();
         });
@@ -32,13 +34,14 @@ export class EmailAlertsService implements OnModuleInit {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Get all ready contracts with end date and notice period
+            // Get all ready contracts with end date and notice period, include user
             const contracts = await this.contractRepository.find({
                 where: {
                     status: 'ready',
                     endDate: Not(IsNull()),
                     noticeDays: Not(IsNull()),
                 },
+                relations: ['user'],
             });
 
             console.log(`[EMAIL ALERTS] Checking ${contracts.length} contracts...`);
@@ -65,18 +68,24 @@ export class EmailAlertsService implements OnModuleInit {
                     today.toDateString();
 
                 if (shouldAlert && !alreadyAlerted) {
+                    // Get user email from the contract's user relation
+                    const userEmail = contract.user?.email;
+                    if (!userEmail) {
+                        console.warn(`[EMAIL ALERTS] No user email for contract ${contract.id}, skipping`);
+                        continue;
+                    }
+
                     console.log(
-                        `[EMAIL ALERTS] Sending alert for contract ${contract.id} (${daysLeft} days left)`,
+                        `[EMAIL ALERTS] Enqueuing alert for contract ${contract.id} -> ${userEmail} (${daysLeft} days left)`,
                     );
 
                     try {
-                        // TODO: Get user email from user settings/profile
-                        const userEmail = process.env.ALERT_EMAIL || 'admin@example.com';
-
-                        await this.emailService.sendEmail({
+                        // Enqueue via BullMQ for rate-limited sending
+                        await this.emailQueue.add('send-email', {
                             to: userEmail,
                             subject: `Contract Alert: ${contract.vendor || 'Unknown Vendor'}`,
                             html: this.emailService.generateAlertEmail(contract, daysLeft),
+                            type: 'contract-alert',
                         });
 
                         // Update last alerted date
@@ -85,11 +94,11 @@ export class EmailAlertsService implements OnModuleInit {
                         });
 
                         console.log(
-                            `[EMAIL ALERTS] Alert sent for contract ${contract.id}`,
+                            `[EMAIL ALERTS] Alert enqueued for contract ${contract.id}`,
                         );
                     } catch (error) {
                         console.error(
-                            `[EMAIL ALERTS] Failed to send alert for contract ${contract.id}:`,
+                            `[EMAIL ALERTS] Failed to enqueue alert for contract ${contract.id}:`,
                             error,
                         );
                     }

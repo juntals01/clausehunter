@@ -23,7 +23,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && typeof window !== "undefined") {
       // Don't redirect if already on auth pages
       const path = window.location.pathname
-      if (!path.startsWith("/sign-in") && !path.startsWith("/sign-up")) {
+      if (!path.startsWith("/sign-in") && !path.startsWith("/sign-up") && !path.startsWith("/forgot-password") && !path.startsWith("/reset-password")) {
         localStorage.removeItem("access_token")
         localStorage.removeItem("user")
         window.location.href = "/sign-in"

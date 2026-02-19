@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth, type User } from "@/lib/auth-context"
+import { findActiveOnboardingSessionId } from "@/lib/stores/onboarding-store"
 
 export default function GoogleCallbackPage() {
   const router = useRouter()
@@ -26,8 +27,13 @@ export default function GoogleCallbackPage() {
       const user: User = JSON.parse(userParam)
       loginWithToken(token, user)
 
-      // Redirect based on role
-      if (user.role === "admin") {
+      // Check if there's a pending onboarding session
+      const sessionId = findActiveOnboardingSessionId()
+
+      if (sessionId) {
+        // Redirect to processing page to complete the upload
+        router.replace(`/onboarding/processing/${sessionId}`)
+      } else if (user.role === "admin") {
         router.replace("/admin")
       } else {
         router.replace("/dashboard")

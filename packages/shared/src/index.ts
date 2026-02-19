@@ -1,3 +1,28 @@
+// ---------------------------------------------------------------------------
+// Subscription / Billing
+// ---------------------------------------------------------------------------
+
+export type PlanName = 'free' | 'pro' | 'team';
+
+export type SubscriptionStatus =
+    | 'active'
+    | 'cancelled'
+    | 'expired'
+    | 'past_due'
+    | 'paused'
+    | 'on_trial'
+    | 'unpaid';
+
+export const PLAN_LIMITS: Record<PlanName, number> = {
+    free: 3,
+    pro: Infinity,
+    team: Infinity,
+};
+
+// ---------------------------------------------------------------------------
+// Contracts
+// ---------------------------------------------------------------------------
+
 export type ContractStatus = 'queued' | 'processing' | 'ready' | 'failed';
 
 export type ClauseType = 'auto_renewal' | 'notice_period' | 'termination' | 'penalty' | 'price_escalation';

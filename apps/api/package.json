@@ -1,5 +1,5 @@
 {
-    "name": "@clausehunter/api",
+    "name": "@expirationreminderai/api",
     "version": "1.0.0",
     "scripts": {
         "start": "nest start",
@@ -9,8 +9,8 @@
         "build": "nest build"
     },
     "dependencies": {
-        "@clausehunter/database": "*",
-        "@clausehunter/shared": "*",
+        "@expirationreminderai/database": "*",
+        "@expirationreminderai/shared": "*",
         "@nestjs/bullmq": "^11.0.4",
         "@nestjs/common": "^10.3.0",
         "@nestjs/config": "^3.1.1",

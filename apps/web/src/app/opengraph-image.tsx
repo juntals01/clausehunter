@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og"
 
 export const runtime = "edge"
-export const alt = "Clause Hunter - Never miss a contract renewal"
+export const alt = "Expiration Reminder AI - Never miss a contract renewal"
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
@@ -43,10 +43,10 @@ export default function OGImage() {
               fontWeight: "bold",
             }}
           >
-            CH
+            ERA
           </div>
           <span style={{ fontSize: "48px", fontWeight: "bold", color: "#1C1917" }}>
-            Clause Hunter
+            Expiration Reminder AI
           </span>
         </div>
 
@@ -72,7 +72,7 @@ export default function OGImage() {
             fontWeight: 600,
           }}
         >
-          clausehunter.com
+          expirationreminderai.com
         </p>
       </div>
     ),

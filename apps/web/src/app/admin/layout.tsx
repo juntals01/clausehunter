@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Menu } from "lucide-react"
 import { AdminSidebar } from "@/components/layout/admin-sidebar"
+import { UserDropdown } from "@/components/user-dropdown"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -33,7 +34,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Menu className="w-6 h-6" />
           </button>
           <Link href="/admin" className="font-display text-sm font-semibold text-white">Admin Panel</Link>
-          <div className="w-8" />
+          <UserDropdown variant="admin" />
         </div>
         {children}
       </main>

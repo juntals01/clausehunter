@@ -1,9 +1,9 @@
 ---
-description: ClauseHunter monorepo – project structure, shared conventions, tech stack
+description: ExpirationReminderAI monorepo – project structure, shared conventions, tech stack
 alwaysApply: true
 ---
 
-# ClauseHunter – Project Rules
+# ExpirationReminderAI – Project Rules
 
 Turborepo monorepo for contract analysis SaaS.
 
@@ -32,8 +32,8 @@ packages/
 
 ## Shared Code
 
-- **Types/schemas**: Define in `packages/shared`, import as `@clausehunter/shared`.
-- **Entities**: Define in `packages/database`, import as `@clausehunter/database`.
+- **Types/schemas**: Define in `packages/shared`, import as `@expirationreminderai/shared`.
+- **Entities**: Define in `packages/database`, import as `@expirationreminderai/database`.
 - Never duplicate types between apps. Always use the shared packages.
 
 ## Environment

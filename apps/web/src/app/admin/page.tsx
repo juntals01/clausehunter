@@ -13,18 +13,10 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { UserAvatar } from "@/components/user-avatar"
 import { Input } from "@/components/ui/input"
 import { useUsers, useUserCount } from "@/lib/hooks/use-users"
 import { useAdminContracts } from "@/lib/hooks/use-admin-contracts"
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2)
-}
 
 function formatRelativeTime(dateStr: string | null) {
   if (!dateStr) return "Never"
@@ -52,46 +44,34 @@ export default function AdminOverviewPage() {
       Date.now() - new Date(u.lastActiveAt).getTime() < 24 * 60 * 60 * 1000
   ).length ?? 0
 
+  const newThisMonth = users?.filter((u) => {
+    const created = new Date(u.createdAt)
+    const now = new Date()
+    return (
+      created.getMonth() === now.getMonth() &&
+      created.getFullYear() === now.getFullYear()
+    )
+  }).length ?? 0
+
   const metrics = [
     {
       label: "Total Users",
       value: totalUsers.toLocaleString(),
-      change: "+12%",
-      changeColor: "text-emerald-400",
-      changeBg: "bg-emerald-400/10",
       icon: Users,
     },
     {
       label: "Active Today",
       value: activeToday.toLocaleString(),
-      change: "+4%",
-      changeColor: "text-emerald-400",
-      changeBg: "bg-emerald-400/10",
       icon: Activity,
     },
     {
       label: "New This Month",
-      value: (
-        users?.filter((u) => {
-          const created = new Date(u.createdAt)
-          const now = new Date()
-          return (
-            created.getMonth() === now.getMonth() &&
-            created.getFullYear() === now.getFullYear()
-          )
-        }).length ?? 0
-      ).toLocaleString(),
-      change: "+25%",
-      changeColor: "text-amber-400",
-      changeBg: "bg-amber-400/10",
+      value: newThisMonth.toLocaleString(),
       icon: TrendingUp,
     },
     {
       label: "Documents",
       value: totalContracts.toLocaleString(),
-      change: "+8%",
-      changeColor: "text-emerald-400",
-      changeBg: "bg-emerald-400/10",
       icon: FileText,
     },
   ]
@@ -161,19 +141,8 @@ export default function AdminOverviewPage() {
                     key={metric.label}
                     className="bg-[#1E1B4B] rounded-[14px] p-5 text-white flex flex-col gap-3"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
-                        <Icon className="h-5 w-5 text-[#A5B4FC]" />
-                      </div>
-                      <span
-                        className={cn(
-                          "text-xs font-medium px-2 py-0.5 rounded-full",
-                          metric.changeBg,
-                          metric.changeColor
-                        )}
-                      >
-                        {metric.change}
-                      </span>
+                    <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
+                      <Icon className="h-5 w-5 text-[#A5B4FC]" />
                     </div>
                     <div>
                       <p className="text-2xl font-bold font-display">
@@ -229,9 +198,11 @@ export default function AdminOverviewPage() {
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded-full bg-[#4F46E5] flex items-center justify-center text-white text-xs font-semibold">
-                            {getInitials(user.name)}
-                          </div>
+                          <UserAvatar
+                            name={user.name}
+                            size={36}
+                            fallbackClassName="bg-[#4F46E5]"
+                          />
                           <div>
                             <p className="text-sm font-medium text-gray-900">
                               {user.name}

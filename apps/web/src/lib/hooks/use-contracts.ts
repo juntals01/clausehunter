@@ -4,6 +4,19 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import api from "../api"
 
 // ─── Types ───────────────────────────────────────────────────────────
+export interface ContractExtractionData {
+  vendor_name: string | null
+  contract_end_date: string | null
+  notice_period_days: number | null
+  auto_renews: boolean | null
+  renewal_term_months: number | null
+  cancellation_deadline: string | null
+  renewal_clauses: { clause_text: string; source_text: string }[]
+  penalty_clauses: { clause_text: string; source_text: string }[]
+  key_dates: { date: string; label: string; source_text: string }[]
+  summary: string | null
+}
+
 export interface Contract {
   id: string
   userId: string | null
@@ -14,6 +27,7 @@ export interface Contract {
   autoRenews: boolean | null
   status: string
   errorMessage: string | null
+  extractionData: ContractExtractionData | null
   createdAt: string
   updatedAt: string
 }
@@ -42,7 +56,7 @@ export function useContracts() {
   })
 }
 
-/** GET /contracts/:id */
+/** GET /contracts/:id – auto-polls while processing/queued */
 export function useContract(id: string) {
   return useQuery<Contract>({
     queryKey: ["contracts", id],
@@ -51,6 +65,11 @@ export function useContract(id: string) {
       return data
     },
     enabled: !!id,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status
+      if (status === "processing" || status === "queued") return 5000
+      return false
+    },
   })
 }
 
@@ -92,6 +111,21 @@ export function useUpdateContract() {
     onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: ["contracts"] })
       qc.invalidateQueries({ queryKey: ["contracts", vars.id] })
+    },
+  })
+}
+
+/** POST /contracts/:id/reprocess */
+export function useReprocessContract() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data } = await api.post(`/contracts/${id}/reprocess`)
+      return data as Contract
+    },
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ["contracts"] })
+      qc.invalidateQueries({ queryKey: ["contracts", id] })
     },
   })
 }

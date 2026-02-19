@@ -5,14 +5,14 @@ import { useRouter } from "next/navigation"
 import {
   Search,
   Upload,
-  Bell,
   ArrowRight,
   AlertTriangle,
   Loader2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useContracts, type DashboardContract } from "@/lib/hooks/use-contracts"
-import { useAuth } from "@/lib/auth-context"
+import { UserDropdown } from "@/components/user-dropdown"
+import { NotificationDropdown } from "@/components/notification-dropdown"
 
 type StatusLabel = "Urgent" | "Warning" | "Safe" | "Review"
 
@@ -28,15 +28,16 @@ const statusBadge = (status: StatusLabel) => {
     Urgent: "bg-red-50 text-red-600",
     Warning: "bg-amber-50 text-amber-600",
     Safe: "bg-green-50 text-green-600",
-    Review: "bg-gray-100 text-gray-500",
+    Review: "bg-yellow-50 text-yellow-600",
   }
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+        "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
         styles[status]
       )}
     >
+      {status === "Review" && <AlertTriangle className="h-3 w-3" />}
       {status}
     </span>
   )
@@ -53,16 +54,6 @@ function computeCancelByDate(endDate: string | null, noticeDays: number | null):
   const d = new Date(endDate)
   d.setDate(d.getDate() - noticeDays)
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-}
-
-function getInitials(name: string | undefined | null): string {
-  if (!name) return "U"
-  return name
-    .split(" ")
-    .map((p) => p[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2)
 }
 
 function ConfidenceRing({ value }: { value: number }) {
@@ -130,7 +121,6 @@ function LoadingSkeleton() {
 
 export default function ContractsPage() {
   const { data: contracts, isLoading, error } = useContracts()
-  const { user } = useAuth()
   const router = useRouter()
 
   const sortedContracts = useMemo(() => {
@@ -179,13 +169,8 @@ export default function ContractsPage() {
           >
             <Upload className="h-4 w-4" />
           </a>
-          <button className="relative rounded-lg p-2 text-[#78716C] hover:bg-white hover:text-[#1C1917] transition-colors">
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#EA580C]" />
-          </button>
-          <div className="hidden sm:flex h-8 w-8 rounded-full bg-[#EA580C] text-white items-center justify-center text-sm font-medium">
-            {getInitials(user?.name)}
-          </div>
+          <NotificationDropdown />
+          <div className="hidden sm:block"><UserDropdown /></div>
         </div>
       </div>
 

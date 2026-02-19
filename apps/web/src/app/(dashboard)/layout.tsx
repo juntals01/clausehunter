@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Menu } from "lucide-react"
 import { UserSidebar } from "@/components/layout/user-sidebar"
+import { UserDropdown } from "@/components/user-dropdown"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -32,8 +33,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <button onClick={() => setSidebarOpen(true)} className="p-1 text-[#78716C] hover:text-[#1C1917]">
             <Menu className="w-6 h-6" />
           </button>
-          <Link href="/dashboard" className="font-display text-sm font-semibold text-[#1C1917]">Clause Hunter</Link>
-          <div className="w-8" />
+          <Link href="/dashboard" className="font-display text-sm font-semibold text-[#1C1917]">Expiration Reminder AI</Link>
+          <UserDropdown />
         </div>
         {children}
       </main>

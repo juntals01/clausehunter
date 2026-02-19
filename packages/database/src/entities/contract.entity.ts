@@ -22,6 +22,9 @@ export class Contract {
     @Column({ name: 'original_filename', type: 'text' })
     originalFilename!: string;
 
+    @Column({ name: 'stored_filename', type: 'text', nullable: true })
+    storedFilename!: string | null;
+
     @Column({ type: 'text', nullable: true })
     vendor!: string | null;
 
@@ -39,6 +42,9 @@ export class Contract {
 
     @Column({ name: 'error_message', type: 'text', nullable: true })
     errorMessage!: string | null;
+
+    @Column({ name: 'extraction_data', type: 'jsonb', nullable: true })
+    extractionData!: Record<string, any> | null;
 
     @Column({ name: 'last_alerted_on', type: 'date', nullable: true })
     lastAlertedOn!: Date | null;

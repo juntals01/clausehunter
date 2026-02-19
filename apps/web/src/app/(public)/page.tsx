@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import {
   Sparkles,
-  CloudUpload,
   Upload,
   Brain,
   Bell,
@@ -14,9 +13,10 @@ import {
   FileCheck,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { HeroDropzone } from "@/components/hero-dropzone"
 
 export const metadata: Metadata = {
-  title: "Clause Hunter - Never Miss a Contract Renewal Again",
+  title: "Expiration Reminder AI - Never Miss a Contract Renewal Again",
   description:
     "Upload your contracts and let AI extract key clauses, track renewal dates, and send timely alerts. Stop accidental auto-renewals and save thousands.",
   alternates: { canonical: "/" },
@@ -146,27 +146,7 @@ export default function LandingPage() {
           </div>
 
           {/* Right Side — Dropzone Card */}
-          <div className="w-full max-w-[420px] md:max-w-none md:flex-1 bg-white rounded-[20px] border-2 border-[#FDBA74] p-8 sm:p-[40px_36px] lg:p-[48px_44px] shadow-[0_8px_32px_-4px_rgba(234,88,12,0.06)] flex flex-col items-center gap-3.5">
-            <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full bg-[#FFF7ED] flex items-center justify-center">
-              <CloudUpload className="w-7 h-7 lg:w-9 lg:h-9 text-[#EA580C]" />
-            </div>
-            <h3 className="font-display text-lg lg:text-xl font-bold text-[#1C1917]">
-              Drop your contract here
-            </h3>
-            <p className="text-sm lg:text-base text-[#78716C] text-center">
-              AI detects clauses &amp; renewal dates instantly
-            </p>
-            <button className="mt-2 inline-flex items-center justify-center bg-[#EA580C] text-white font-display font-semibold text-sm rounded-[10px] py-3 lg:py-3.5 px-7 lg:px-9 hover:bg-[#DC5409] transition-colors">
-              Browse Files
-            </button>
-            <div className="flex items-center gap-3 mt-2">
-              <span className="text-xs text-[#A8A29E]">PDF</span>
-              <span className="w-1 h-1 rounded-full bg-[#D6D3D1]" />
-              <span className="text-xs text-[#A8A29E]">DOCX</span>
-              <span className="w-1 h-1 rounded-full bg-[#D6D3D1]" />
-              <span className="text-xs text-[#A8A29E]">Scanned</span>
-            </div>
-          </div>
+          <HeroDropzone />
         </div>
       </section>
 

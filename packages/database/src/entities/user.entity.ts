@@ -7,6 +7,7 @@ import {
     OneToMany,
 } from 'typeorm';
 import { Contract } from './contract.entity';
+import { Feedback } from './feedback.entity';
 
 @Entity('users')
 export class User {
@@ -25,6 +26,9 @@ export class User {
     @Column({ name: 'google_id', type: 'varchar', length: 255, nullable: true, unique: true })
     googleId!: string | null;
 
+    @Column({ type: 'varchar', length: 500, nullable: true })
+    avatar!: string | null;
+
     @Column({ type: 'varchar', length: 50, default: 'user' })
     role!: string; // 'admin' | 'user' | 'editor'
 
@@ -37,6 +41,12 @@ export class User {
     @Column({ name: 'last_active_at', type: 'timestamp', nullable: true })
     lastActiveAt!: Date | null;
 
+    @Column({ name: 'reset_token', type: 'varchar', length: 255, nullable: true })
+    resetToken!: string | null;
+
+    @Column({ name: 'reset_token_expires', type: 'timestamp', nullable: true })
+    resetTokenExpires!: Date | null;
+
     @CreateDateColumn({ name: 'created_at' })
     createdAt!: Date;
 
@@ -45,4 +55,7 @@ export class User {
 
     @OneToMany(() => Contract, (contract) => contract.user)
     contracts?: Contract[];
+
+    @OneToMany(() => Feedback, (feedback) => feedback.user)
+    feedbacks?: Feedback[];
 }

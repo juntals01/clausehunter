@@ -58,6 +58,16 @@ export class ContractsController {
         return this.contractsService.updateContract(id, updateData, req.user.id);
     }
 
+    @Get(':id/file')
+    async getContractFile(@Param('id') id: string, @Request() req: any) {
+        return this.contractsService.getContractFileUrl(id, req.user.id);
+    }
+
+    @Post(':id/reprocess')
+    async reprocessContract(@Param('id') id: string, @Request() req: any) {
+        return this.contractsService.reprocessContract(id, req.user.id);
+    }
+
     @Delete(':id')
     async deleteContract(@Param('id') id: string, @Request() req: any) {
         return this.contractsService.deleteContract(id, req.user.id);
