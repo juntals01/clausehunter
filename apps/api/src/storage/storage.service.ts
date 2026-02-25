@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 export class StorageService {
     private readonly logger = new Logger(StorageService.name);
     private minioClient: Client;
+    private publicMinioClient: Client | null = null;
     private readonly bucketName = 'contracts';
 
     constructor(private configService: ConfigService) {
@@ -13,6 +14,7 @@ export class StorageService {
         const port = parseInt(this.configService.get('MINIO_PORT') || '9000');
         const useSSL = this.configService.get('MINIO_USE_SSL') === 'true';
         const accessKey = this.configService.get('MINIO_ACCESS_KEY') || 'minioadmin';
+        const secretKey = this.configService.get('MINIO_SECRET_KEY') || 'minioadmin';
 
         this.logger.log(`MinIO config: endpoint=${endPoint}, port=${port}, ssl=${useSSL}, accessKey=${accessKey ? '***set***' : '***EMPTY***'}`);
 
@@ -21,8 +23,20 @@ export class StorageService {
             port,
             useSSL,
             accessKey,
-            secretKey: this.configService.get('MINIO_SECRET_KEY') || 'minioadmin',
+            secretKey,
         });
+
+        const publicEndpoint = this.configService.get('MINIO_PUBLIC_ENDPOINT');
+        if (publicEndpoint) {
+            this.logger.log(`MinIO public endpoint: ${publicEndpoint}`);
+            this.publicMinioClient = new Client({
+                endPoint: publicEndpoint,
+                port: 443,
+                useSSL: true,
+                accessKey,
+                secretKey,
+            });
+        }
 
         this.ensureBucketExists();
     }
@@ -88,7 +102,8 @@ export class StorageService {
 
     async getFileUrl(fileName: string, expirySeconds: number = 3600): Promise<string> {
         try {
-            return await this.minioClient.presignedGetObject(
+            const client = this.publicMinioClient || this.minioClient;
+            return await client.presignedGetObject(
                 this.bucketName,
                 fileName,
                 expirySeconds,
