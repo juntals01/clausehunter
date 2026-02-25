@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import {
   Search,
   Upload,
@@ -54,7 +54,7 @@ const PLAN_DISPLAY: Record<string, { label: string; color: string; bgColor: stri
   team: { label: "Team Plan", color: "text-[#7C3AED]", bgColor: "bg-purple-50" },
 }
 
-export default function BillingPage() {
+function BillingContent() {
   const { user } = useAuth()
   const { data: contracts, isLoading: contractsLoading } = useContracts()
   const searchParams = useSearchParams()
@@ -356,5 +356,19 @@ export default function BillingPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function BillingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <Loader2 className="h-6 w-6 animate-spin text-[#EA580C]" />
+        </div>
+      }
+    >
+      <BillingContent />
+    </Suspense>
   )
 }

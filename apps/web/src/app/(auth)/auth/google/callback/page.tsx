@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { Suspense, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth, type User } from "@/lib/auth-context"
 import { findActiveOnboardingSessionId } from "@/lib/stores/onboarding-store"
 
-export default function GoogleCallbackPage() {
+function GoogleCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { loginWithToken } = useAuth()
@@ -27,11 +27,9 @@ export default function GoogleCallbackPage() {
       const user: User = JSON.parse(userParam)
       loginWithToken(token, user)
 
-      // Check if there's a pending onboarding session
       const sessionId = findActiveOnboardingSessionId()
 
       if (sessionId) {
-        // Redirect to processing page to complete the upload
         router.replace(`/onboarding/processing/${sessionId}`)
       } else if (user.role === "admin") {
         router.replace("/admin")
@@ -50,5 +48,22 @@ export default function GoogleCallbackPage() {
         <p className="text-sm text-gray-500">Signing you in with Google...</p>
       </div>
     </div>
+  )
+}
+
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-[#FFFBF5]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-200 border-t-orange-500" />
+            <p className="text-sm text-gray-500">Signing you in with Google...</p>
+          </div>
+        </div>
+      }
+    >
+      <GoogleCallbackContent />
+    </Suspense>
   )
 }
