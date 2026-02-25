@@ -9,8 +9,15 @@ async function bootstrap() {
     });
     const config = app.get(ConfigService);
 
+    const webUrl = config.get('WEB_URL', 'http://localhost:3000');
     app.enableCors({
-        origin: config.get('WEB_URL', 'http://localhost:3000'),
+        origin: (origin, callback) => {
+            if (!origin || origin === webUrl || origin === 'http://localhost:3000') {
+                callback(null, true);
+            } else {
+                callback(null, false);
+            }
+        },
         credentials: true,
     });
 
