@@ -1,0 +1,16 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "packages": {
+    "node": "20"
+  },
+  "buildAptPackages": [
+    "build-essential",
+    "pkg-config",
+    "libcairo2-dev",
+    "libjpeg62-turbo-dev",
+    "libpango1.0-dev",
+    "libgif-dev",
+    "librsvg2-dev",
+    "libpixman-1-dev"
+  ]
+}
