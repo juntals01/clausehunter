@@ -1,0 +1,15 @@
+[phases.setup]
+nixPkgs = ["nodejs-20_x", "npm-9_x"]
+aptPkgs = [
+  "build-essential",
+  "pkg-config",
+  "libcairo2-dev",
+  "libjpeg62-turbo-dev",
+  "libpango1.0-dev",
+  "libgif-dev",
+  "librsvg2-dev",
+  "libpixman-1-dev",
+]
+
+[phases.install]
+cmds = ["npm ci"]
