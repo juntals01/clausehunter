@@ -16,10 +16,17 @@ import { cn } from "@/lib/utils"
 import { HeroDropzone } from "@/components/hero-dropzone"
 
 export const metadata: Metadata = {
-  title: "Expiration Reminder AI - Never Miss a Contract Renewal Again",
+  title: "Expiration Reminder AI — Never Miss a Contract Renewal Again",
   description:
     "Upload your contracts and let AI extract key clauses, track renewal dates, and send timely alerts. Stop accidental auto-renewals and save thousands.",
   alternates: { canonical: "/" },
+  openGraph: {
+    title: "Expiration Reminder AI — Never Miss a Contract Renewal Again",
+    description:
+      "Upload your contracts and let AI extract key clauses, track renewal dates, and send timely alerts. Stop accidental auto-renewals and save thousands.",
+    url: "/",
+    type: "website",
+  },
 }
 
 const steps = [
