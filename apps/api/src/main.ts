@@ -9,8 +9,10 @@ async function bootstrap() {
     });
     const config = app.get(ConfigService);
 
-    // Enable CORS
-    app.enableCors();
+    app.enableCors({
+        origin: config.get('WEB_URL', 'http://localhost:3000'),
+        credentials: true,
+    });
 
     // Global validation pipe
     app.useGlobalPipes(
