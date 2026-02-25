@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,6 +11,8 @@ import { UpdateContractDto } from './dto/update-contract.dto';
 
 @Injectable()
 export class ContractsService {
+    private readonly logger = new Logger(ContractsService.name);
+
     constructor(
         @InjectRepository(Contract)
         private contractRepository: Repository<Contract>,
@@ -24,12 +26,17 @@ export class ContractsService {
     ) {}
 
     async createContract(file: Express.Multer.File, userId: string) {
+        this.logger.log(`[UPLOAD] Starting for user=${userId}, file=${file.originalname} (${file.size} bytes, ${file.mimetype})`);
+
         const plan = await this.billingService.getUserPlan(userId);
         const limit = PLAN_LIMITS[plan];
+        this.logger.log(`[UPLOAD] User plan=${plan}, limit=${limit}`);
 
         if (limit !== Infinity) {
             const count = await this.contractRepository.count({ where: { userId } });
+            this.logger.log(`[UPLOAD] Current count=${count}/${limit}`);
             if (count >= limit) {
+                this.logger.warn(`[UPLOAD] Limit reached for user=${userId}`);
                 throw new ForbiddenException(
                     `You've reached the ${limit}-contract limit on the ${plan} plan. Upgrade to upload more.`,
                 );
@@ -37,7 +44,9 @@ export class ContractsService {
         }
 
         const fileName = `${Date.now()}-${file.originalname}`;
+        this.logger.log(`[UPLOAD] Uploading to MinIO as ${fileName}`);
         await this.storageService.uploadFile(fileName, file.buffer, file.mimetype);
+        this.logger.log(`[UPLOAD] MinIO upload complete`);
 
         const contract = this.contractRepository.create({
             originalFilename: file.originalname,
@@ -46,11 +55,13 @@ export class ContractsService {
             status: 'queued',
         });
         await this.contractRepository.save(contract);
+        this.logger.log(`[UPLOAD] Contract saved id=${contract.id}, queuing OCR job`);
 
         await this.ocrQueue.add('process-ocr', {
             contractId: contract.id,
             fileName,
         });
+        this.logger.log(`[UPLOAD] OCR job queued for contract=${contract.id}`);
 
         return contract;
     }

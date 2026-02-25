@@ -1,18 +1,26 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Client } from 'minio';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class StorageService {
+    private readonly logger = new Logger(StorageService.name);
     private minioClient: Client;
     private readonly bucketName = 'contracts';
 
     constructor(private configService: ConfigService) {
+        const endPoint = this.configService.get('MINIO_ENDPOINT') || 'localhost';
+        const port = parseInt(this.configService.get('MINIO_PORT') || '9000');
+        const useSSL = this.configService.get('MINIO_USE_SSL') === 'true';
+        const accessKey = this.configService.get('MINIO_ACCESS_KEY') || 'minioadmin';
+
+        this.logger.log(`MinIO config: endpoint=${endPoint}, port=${port}, ssl=${useSSL}, accessKey=${accessKey ? '***set***' : '***EMPTY***'}`);
+
         this.minioClient = new Client({
-            endPoint: this.configService.get('MINIO_ENDPOINT') || 'localhost',
-            port: parseInt(this.configService.get('MINIO_PORT') || '9000'),
-            useSSL: this.configService.get('MINIO_USE_SSL') === 'true',
-            accessKey: this.configService.get('MINIO_ACCESS_KEY') || 'minioadmin',
+            endPoint,
+            port,
+            useSSL,
+            accessKey,
             secretKey: this.configService.get('MINIO_SECRET_KEY') || 'minioadmin',
         });
 
@@ -24,10 +32,12 @@ export class StorageService {
             const exists = await this.minioClient.bucketExists(this.bucketName);
             if (!exists) {
                 await this.minioClient.makeBucket(this.bucketName, 'us-east-1');
-                console.log(`✓ Created MinIO bucket: ${this.bucketName}`);
+                this.logger.log(`Created bucket: ${this.bucketName}`);
+            } else {
+                this.logger.log(`Bucket exists: ${this.bucketName}`);
             }
         } catch (error) {
-            console.error('Error ensuring bucket exists:', error);
+            this.logger.error(`Failed to ensure bucket exists: ${error.message}`, error.stack);
         }
     }
 
@@ -36,6 +46,7 @@ export class StorageService {
         fileBuffer: Buffer,
         contentType: string,
     ): Promise<string> {
+        this.logger.log(`Uploading ${fileName} (${fileBuffer.length} bytes, ${contentType})`);
         try {
             await this.minioClient.putObject(
                 this.bucketName,
@@ -44,8 +55,10 @@ export class StorageService {
                 fileBuffer.length,
                 { 'Content-Type': contentType },
             );
+            this.logger.log(`Upload complete: ${fileName}`);
             return fileName;
         } catch (error) {
+            this.logger.error(`Upload failed for ${fileName}: ${error.message}`, error.stack);
             throw new Error(`Failed to upload file to MinIO: ${error.message}`);
         }
     }

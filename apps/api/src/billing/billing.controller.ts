@@ -10,6 +10,7 @@ import {
     HttpException,
     HttpStatus,
     Headers,
+    Logger,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
@@ -19,6 +20,8 @@ import { PlanName } from '@expirationreminderai/shared';
 
 @Controller('billing')
 export class BillingController {
+    private readonly logger = new Logger(BillingController.name);
+
     constructor(
         private readonly billingService: BillingService,
         private readonly config: ConfigService,
@@ -30,16 +33,26 @@ export class BillingController {
         @Body() body: { variantId: string; planName: PlanName },
         @Request() req: any,
     ) {
+        this.logger.log(`[CHECKOUT] user=${req.user.id}, email=${req.user.email}, plan=${body.planName}, variant=${body.variantId}`);
+
         if (!body.variantId || !body.planName) {
+            this.logger.warn(`[CHECKOUT] Missing variantId or planName`);
             throw new HttpException('variantId and planName are required', HttpStatus.BAD_REQUEST);
         }
 
-        return this.billingService.createCheckout(
-            req.user.id,
-            req.user.email,
-            body.variantId,
-            body.planName,
-        );
+        try {
+            const result = await this.billingService.createCheckout(
+                req.user.id,
+                req.user.email,
+                body.variantId,
+                body.planName,
+            );
+            this.logger.log(`[CHECKOUT] Success for user=${req.user.id}, redirecting to LemonSqueezy`);
+            return result;
+        } catch (error) {
+            this.logger.error(`[CHECKOUT] Failed for user=${req.user.id}: ${error.message}`, error.stack);
+            throw error;
+        }
     }
 
     @Post('webhook')
