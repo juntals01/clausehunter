@@ -35,6 +35,24 @@ export function Header() {
             Pricing
           </Link>
           <Link
+            href="/blog"
+            className="text-sm font-medium text-[#78716C] hover:text-[#1C1917] transition-colors"
+          >
+            Blog
+          </Link>
+          <Link
+            href="/feature-requests"
+            className="text-sm font-medium text-[#78716C] hover:text-[#1C1917] transition-colors"
+          >
+            Feature Requests
+          </Link>
+          <Link
+            href="/contact"
+            className="text-sm font-medium text-[#78716C] hover:text-[#1C1917] transition-colors"
+          >
+            Contact
+          </Link>
+          <Link
             href="/sign-in"
             className="text-sm font-medium text-[#78716C] hover:text-[#1C1917] transition-colors"
           >
@@ -79,6 +97,27 @@ export function Header() {
               className="px-4 py-3 rounded-lg text-sm font-medium text-[#78716C] hover:bg-[#FAFAF9] hover:text-[#1C1917] transition-colors"
             >
               Pricing
+            </Link>
+            <Link
+              href="/blog"
+              onClick={() => setMobileOpen(false)}
+              className="px-4 py-3 rounded-lg text-sm font-medium text-[#78716C] hover:bg-[#FAFAF9] hover:text-[#1C1917] transition-colors"
+            >
+              Blog
+            </Link>
+            <Link
+              href="/feature-requests"
+              onClick={() => setMobileOpen(false)}
+              className="px-4 py-3 rounded-lg text-sm font-medium text-[#78716C] hover:bg-[#FAFAF9] hover:text-[#1C1917] transition-colors"
+            >
+              Feature Requests
+            </Link>
+            <Link
+              href="/contact"
+              onClick={() => setMobileOpen(false)}
+              className="px-4 py-3 rounded-lg text-sm font-medium text-[#78716C] hover:bg-[#FAFAF9] hover:text-[#1C1917] transition-colors"
+            >
+              Contact
             </Link>
             <Link
               href="/sign-in"

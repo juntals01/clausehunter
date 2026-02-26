@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { FileSearch, LayoutDashboard, Users, FileText, MessageSquare, Activity, Settings, LogOut, Mail } from "lucide-react"
+import { FileSearch, LayoutDashboard, Users, FileText, MessageSquare, Activity, Settings, LogOut, Mail, BookOpen, Lightbulb } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/auth-context"
 
@@ -13,6 +13,8 @@ const navItems = [
   { href: "/admin/contracts", icon: FileText, label: "Contracts" },
   { href: "/admin/feedback", icon: MessageSquare, label: "Feedback" },
   { href: "/admin/email", icon: Mail, label: "Email" },
+  { href: "/admin/blog", icon: BookOpen, label: "Blog" },
+  { href: "/admin/feature-requests", icon: Lightbulb, label: "Feature Requests" },
   { href: "/admin/activity", icon: Activity, label: "Activity" },
   { href: "/admin/settings", icon: Settings, label: "Settings" },
 ]

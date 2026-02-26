@@ -4,4 +4,7 @@ export { ContractText } from './entities/contract-text.entity';
 export { Feedback } from './entities/feedback.entity';
 export { Notification } from './entities/notification.entity';
 export { Subscription } from './entities/subscription.entity';
+export { BlogPost } from './entities/blog-post.entity';
+export { FeatureRequest } from './entities/feature-request.entity';
+export { FeatureRequestVote } from './entities/feature-request-vote.entity';
 export { AppDataSource } from './data-source';

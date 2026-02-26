@@ -6,6 +6,9 @@ import { ContractText } from './entities/contract-text.entity';
 import { Feedback } from './entities/feedback.entity';
 import { Notification } from './entities/notification.entity';
 import { Subscription } from './entities/subscription.entity';
+import { BlogPost } from './entities/blog-post.entity';
+import { FeatureRequest } from './entities/feature-request.entity';
+import { FeatureRequestVote } from './entities/feature-request-vote.entity';
 
 config();
 
@@ -18,7 +21,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DATABASE_NAME || 'expirationreminderai',
     synchronize: false,
     logging: process.env.NODE_ENV === 'development',
-    entities: [User, Contract, ContractText, Feedback, Notification, Subscription],
+    entities: [User, Contract, ContractText, Feedback, Notification, Subscription, BlogPost, FeatureRequest, FeatureRequestVote],
     migrations: ['src/migrations/*.ts'],
     subscribers: [],
 });

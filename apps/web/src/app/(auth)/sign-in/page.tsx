@@ -10,9 +10,9 @@ import { Label } from "@/components/ui/label"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
-import { useState } from "react"
+import { useState, Suspense } from "react"
 
 const signInSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -22,7 +22,17 @@ const signInSchema = z.object({
 type SignInValues = z.infer<typeof signInSchema>
 
 export default function SignInPage() {
+  return (
+    <Suspense>
+      <SignInContent />
+    </Suspense>
+  )
+}
+
+function SignInContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get("redirect")
   const { login } = useAuth()
   const [apiError, setApiError] = useState<string | null>(null)
 
@@ -39,12 +49,16 @@ export default function SignInPage() {
     try {
       await login(values.email, values.password)
       // Read user from localStorage since login just set it
-      const savedUser = localStorage.getItem("user")
-      const user = savedUser ? JSON.parse(savedUser) : null
-      if (user?.role === "admin") {
-        router.push("/admin")
+      if (redirectTo) {
+        router.push(redirectTo)
       } else {
-        router.push("/dashboard")
+        const savedUser = localStorage.getItem("user")
+        const user = savedUser ? JSON.parse(savedUser) : null
+        if (user?.role === "admin") {
+          router.push("/admin")
+        } else {
+          router.push("/dashboard")
+        }
       }
     } catch (error: any) {
       const message =
