@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ChevronUp, Plus, Loader2, MessageSquare, Lightbulb, CheckCircle2, Clock, Rocket, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -36,6 +36,14 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
 type FilterStatus = "all" | "open" | "planned" | "in_progress" | "completed"
 
 export default function FeatureRequestsPage() {
+  return (
+    <Suspense>
+      <FeatureRequestsContent />
+    </Suspense>
+  )
+}
+
+function FeatureRequestsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user } = useAuth()
