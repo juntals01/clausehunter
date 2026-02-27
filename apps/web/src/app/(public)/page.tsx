@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import Image from "next/image"
 import {
   Sparkles,
   Upload,
@@ -198,6 +199,28 @@ export default function LandingPage() {
                 </div>
               )
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Dashboard at a Glance ─── */}
+      <section className="bg-[#FFFBF5] px-5 sm:px-8 md:px-12 lg:px-[120px] py-12 lg:py-20">
+        <div className="flex flex-col items-center">
+          <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#1C1917] mb-4 text-center">
+            Your Dashboard at a Glance
+          </h2>
+          <p className="text-base lg:text-[17px] text-[#78716C] mb-10 text-center max-w-[560px]">
+            All your contracts in one place — urgency, deadlines, and actions at a glance.
+          </p>
+          <div className="w-full max-w-4xl rounded-2xl border border-[#E7E5E4] overflow-hidden shadow-lg bg-white">
+            <Image
+              src="/dashboard-at-a-glance.png"
+              alt="Dashboard view showing contracts and renewal deadlines"
+              width={1024}
+              height={640}
+              className="w-full h-auto"
+              priority={false}
+            />
           </div>
         </div>
       </section>

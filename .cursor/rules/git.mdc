@@ -1,5 +1,5 @@
 ---
-description: Git workflow shortcut - when user says "push", stage all, commit, and push to GitHub
+description: Git workflow shortcuts - "push" and "deploy" commands for staging, committing, pushing, and deploying
 alwaysApply: true
 ---
 
@@ -13,14 +13,30 @@ When the user says **"push"** (with or without a commit message):
 4. Run `git commit -m "<message>"`
 5. Run `git push`
 
+When the user says **"deploy"** (with or without a commit message):
+
+1. Run `npm run build` to build all apps (stop on failure)
+2. Run `git add -A` to stage all changes
+3. Run `git diff --cached --stat` to see what's being committed
+4. Write a concise, meaningful commit message based on the staged changes
+5. Run `git commit -m "<message>"`
+6. Run `git push`
+
 ## Commit Message Format
 
 - Use imperative mood: "Add", "Fix", "Update", "Remove"
 - Keep the first line under 72 characters
-- If the user provides a message after "push", use it as-is
+- If the user provides a message after "push"/"deploy", use it as-is
 - If no message is provided, summarize the changes automatically
+
+## Build Failure
+
+- If `npm run build` fails, **stop immediately** — do not commit or push
+- Show the build error and fix it before retrying
 
 ## Examples
 
-- User says: `push` → auto-generate message from diff, commit, and push
-- User says: `push fix login bug` → commit with "Fix login bug", then push
+- User says: `push` → stage, commit, push
+- User says: `push fix login bug` → commit with "Fix login bug", push
+- User says: `deploy` → build, stage, commit, push
+- User says: `deploy add blog feature` → build, commit with "Add blog feature", push
