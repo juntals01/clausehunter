@@ -4,10 +4,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Queue } from 'bullmq';
 import { Contract, ContractText, User } from '@expirationreminderai/database';
-import { DashboardContract, PLAN_LIMITS } from '@expirationreminderai/shared';
+import { DashboardDocument, PLAN_LIMITS } from '@expirationreminderai/shared';
 import { StorageService } from '../storage/storage.service';
 import { BillingService } from '../billing/billing.service';
 import { UpdateContractDto } from './dto/update-contract.dto';
+import { CreateManualDocumentDto } from './dto/create-manual-document.dto';
 
 @Injectable()
 export class ContractsService {
@@ -38,7 +39,7 @@ export class ContractsService {
             if (count >= limit) {
                 this.logger.warn(`[UPLOAD] Limit reached for user=${userId}`);
                 throw new ForbiddenException(
-                    `You've reached the ${limit}-contract limit on the ${plan} plan. Upgrade to upload more.`,
+                    `You've reached the ${limit}-document limit on the ${plan} plan. Upgrade to upload more.`,
                 );
             }
         }
@@ -62,6 +63,37 @@ export class ContractsService {
             fileName,
         });
         this.logger.log(`[UPLOAD] OCR job queued for contract=${contract.id}`);
+
+        return contract;
+    }
+
+    async createManualDocument(dto: CreateManualDocumentDto, userId: string) {
+        this.logger.log(`[MANUAL] Creating document for user=${userId}, title=${dto.title}`);
+
+        const plan = await this.billingService.getUserPlan(userId);
+        const limit = PLAN_LIMITS[plan];
+
+        if (limit !== Infinity) {
+            const count = await this.contractRepository.count({ where: { userId } });
+            if (count >= limit) {
+                throw new ForbiddenException(
+                    `You've reached the ${limit}-document limit on the ${plan} plan. Upgrade to add more.`,
+                );
+            }
+        }
+
+        const contract = this.contractRepository.create({
+            title: dto.title,
+            category: dto.category,
+            vendor: dto.vendor || null,
+            endDate: dto.endDate as any || null,
+            noticeDays: dto.noticeDays ?? null,
+            autoRenews: dto.autoRenews ?? null,
+            userId,
+            status: 'ready',
+        });
+        await this.contractRepository.save(contract);
+        this.logger.log(`[MANUAL] Document saved id=${contract.id}`);
 
         return contract;
     }
@@ -90,6 +122,8 @@ export class ContractsService {
             endDate: data.endDate as any,
             noticeDays: data.noticeDays,
             autoRenews: data.autoRenews,
+            ...(data.title !== undefined && { title: data.title }),
+            ...(data.category !== undefined && { category: data.category }),
         };
 
         // Reset lastAlertedOn so the alert system re-evaluates this contract
@@ -137,9 +171,10 @@ export class ContractsService {
             if (daysLeft <= 0) urgency = 'CRITICAL';
             else if (daysLeft <= 7) urgency = 'URGENT';
 
+            const docName = contract.title || contract.vendor || 'Unknown';
             await this.emailQueue.add('send-email', {
                 to: userEmail,
-                subject: `Contract Updated: ${contract.vendor || 'Unknown Vendor'} — ${urgency}`,
+                subject: `Document Updated: ${docName} — ${urgency}`,
                 html: this.generateUpdateAlertHtml(contract, daysLeft, urgency),
                 type: 'contract-alert',
             });
@@ -173,10 +208,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;line-height:1.6;color:#333;margin:0
 .detail{margin:8px 0}.label{font-weight:600;color:#374151}
 .badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}
 </style></head><body><div class="wrapper"><div class="card">
-<div class="header"><h1>${urgency}: Contract Details Updated</h1></div>
+<div class="header"><h1>${urgency}: Document Details Updated</h1></div>
 <div class="body">
-  <p>A contract you're tracking has been updated and requires your attention:</p>
-  <div class="detail"><span class="label">Vendor:</span> ${contract.vendor || 'Unknown'}</div>
+  <p>A document you're tracking has been updated and requires your attention:</p>
+  <div class="detail"><span class="label">Document:</span> ${contract.title || contract.vendor || 'Unknown'}</div>
   <div class="detail"><span class="label">End Date:</span> ${contract.endDate ? new Date(contract.endDate).toLocaleDateString() : 'Unknown'}</div>
   <div class="detail"><span class="label">Notice Period:</span> ${contract.noticeDays ?? 'Unknown'} days</div>
   <div class="detail"><span class="label">Days Left to Cancel:</span> <span class="badge" style="background:${badgeColor};color:#fff">${daysLeft} days</span></div>
@@ -184,7 +219,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;line-height:1.6;color:#333;margin:0
   ${daysLeft <= 0
             ? '<p style="color:#DC2626;font-weight:bold;margin-top:16px">The notice window is now open or has passed. Take action immediately!</p>'
             : `<p style="margin-top:16px">You have <strong>${daysLeft} days</strong> left to provide notice if you wish to cancel or renegotiate.</p>`}
-  <a href="${webUrl}/contracts/${contract.id}" class="btn">View Contract</a>
+  <a href="${webUrl}/dashboard/contracts/${contract.id}" class="btn">View Document</a>
 </div>
 <div class="footer">&copy; ${new Date().getFullYear()} ExpirationReminderAI. All rights reserved.</div>
 </div></div></body></html>`;
@@ -263,7 +298,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;line-height:1.6;color:#333;margin:0
         });
     }
 
-    async getDashboardContracts(userId: string): Promise<DashboardContract[]> {
+    async getDashboardContracts(userId: string): Promise<DashboardDocument[]> {
         const contracts = await this.contractRepository.find({
             where: { userId },
             order: { createdAt: 'DESC' },
@@ -288,6 +323,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;line-height:1.6;color:#333;margin:0
 
             return {
                 id: contract.id,
+                title: contract.title,
+                category: contract.category as any,
                 vendor: contract.vendor,
                 endDate: contract.endDate,
                 noticeDays: contract.noticeDays,

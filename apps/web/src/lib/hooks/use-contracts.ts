@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import api from "../api"
+import type { DocumentCategory } from "@expirationreminderai/shared"
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface ContractExtractionData {
@@ -20,7 +21,9 @@ export interface ContractExtractionData {
 export interface Contract {
   id: string
   userId: string | null
-  originalFilename: string
+  title: string | null
+  category: DocumentCategory
+  originalFilename: string | null
   vendor: string | null
   endDate: string | null
   noticeDays: number | null
@@ -34,6 +37,8 @@ export interface Contract {
 
 export interface DashboardContract {
   id: string
+  title: string | null
+  category: DocumentCategory
   vendor: string | null
   endDate: string | null
   noticeDays: number | null
@@ -41,6 +46,15 @@ export interface DashboardContract {
   status: string
   daysLeftToCancel: number | null
   urgencyStatus: "safe" | "approaching" | "in-window" | "needs-review"
+}
+
+export interface CreateManualDocumentInput {
+  title: string
+  category: DocumentCategory
+  vendor?: string
+  endDate?: string
+  noticeDays?: number
+  autoRenews?: boolean
 }
 
 // ─── Hooks ───────────────────────────────────────────────────────────
@@ -100,6 +114,7 @@ export function useUpdateContract() {
       ...data
     }: {
       id: string
+      title?: string
       vendor?: string
       endDate?: string
       noticeDays?: number
@@ -136,6 +151,20 @@ export function useDeleteContract() {
   return useMutation({
     mutationFn: async (id: string) => {
       await api.delete(`/contracts/${id}`)
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["contracts"] })
+    },
+  })
+}
+
+/** POST /contracts/manual */
+export function useCreateManualDocument() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: CreateManualDocumentInput) => {
+      const { data } = await api.post("/contracts/manual", input)
+      return data as Contract
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["contracts"] })

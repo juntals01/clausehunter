@@ -90,6 +90,7 @@ export class KimiService implements OnModuleInit {
 
             // Ensure arrays exist even if AI omits them
             return {
+                document_title: parsed.document_title ?? null,
                 vendor_name: parsed.vendor_name ?? null,
                 contract_end_date: parsed.contract_end_date ?? null,
                 notice_period_days: parsed.notice_period_days ?? null,

@@ -23,6 +23,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useContract, useDeleteContract, useReprocessContract, useUpdateContract } from "@/lib/hooks/use-contracts"
+import { DOCUMENT_CATEGORIES, type DocumentCategory } from "@expirationreminderai/shared"
 import { UserDropdown } from "@/components/user-dropdown"
 import { NotificationDropdown } from "@/components/notification-dropdown"
 import api from "@/lib/api"
@@ -117,16 +118,16 @@ export default function ContractDetailPage() {
         <div className="flex-1 flex flex-col items-center justify-center gap-4">
           <AlertCircle className="h-12 w-12 text-red-500" />
           <h2 className="font-display text-xl font-semibold text-[#1C1917]">
-            Contract not found
+            Document not found
           </h2>
           <p className="text-sm text-[#78716C]">
-            The contract you&apos;re looking for doesn&apos;t exist or you don&apos;t have access.
+            The document you&apos;re looking for doesn&apos;t exist or you don&apos;t have access.
           </p>
           <a
-            href="/contracts"
+            href="/dashboard/contracts"
             className="inline-flex items-center gap-2 rounded-lg bg-[#EA580C] px-4 py-2 text-sm font-medium text-white hover:bg-[#DC4A04] transition-colors"
           >
-            Back to Contracts
+            Back to Documents
           </a>
         </div>
       </div>
@@ -135,37 +136,42 @@ export default function ContractDetailPage() {
 
   // ── Derived data ────────────────────────────────────────────────────
   const urgency = computeUrgency(contract.endDate, contract.noticeDays)
-  const displayName = contract.originalFilename.replace(/\.[^/.]+$/, "")
+  const displayName = contract.title || contract.originalFilename?.replace(/\.[^/.]+$/, "") || contract.vendor || "Untitled"
+  const isManualEntry = !contract.originalFilename
+  const hasExtractionData = !!contract.extractionData
+  const categoryLabel = DOCUMENT_CATEGORIES[(contract.category as DocumentCategory)] || "Document"
 
   const timeline: { label: string; date: string; icon: typeof UploadIcon }[] = [
-    { label: "Uploaded", date: formatDate(contract.createdAt), icon: UploadIcon },
+    { label: isManualEntry ? "Added" : "Uploaded", date: formatDate(contract.createdAt), icon: isManualEntry ? FileText : UploadIcon },
   ]
 
-  if (contract.status === "ready") {
-    timeline.push({
-      label: "Analysis complete",
-      date: formatDate(contract.updatedAt),
-      icon: FileText,
-    })
-  } else if (contract.status === "processing") {
-    timeline.push({
-      label: "Processing",
-      date: formatDate(contract.updatedAt),
-      icon: Clock,
-    })
-  } else if (contract.status === "failed") {
-    timeline.push({
-      label: "Failed",
-      date: formatDate(contract.updatedAt),
-      icon: AlertCircle,
-    })
+  if (!isManualEntry) {
+    if (contract.status === "ready") {
+      timeline.push({
+        label: "Analysis complete",
+        date: formatDate(contract.updatedAt),
+        icon: FileText,
+      })
+    } else if (contract.status === "processing") {
+      timeline.push({
+        label: "Processing",
+        date: formatDate(contract.updatedAt),
+        icon: Clock,
+      })
+    } else if (contract.status === "failed") {
+      timeline.push({
+        label: "Failed",
+        date: formatDate(contract.updatedAt),
+        icon: AlertCircle,
+      })
+    }
   }
 
   // ── Delete handler ──────────────────────────────────────────────────
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this contract?")) return
+    if (!confirm("Are you sure you want to delete this document?")) return
     await deleteContract.mutateAsync(contract.id)
-    router.push("/contracts")
+    router.push("/dashboard/contracts")
   }
 
   return (
@@ -176,24 +182,11 @@ export default function ContractDetailPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#78716C]" />
           <input
             type="text"
-            placeholder="Search contracts..."
+            placeholder="Search documents..."
             className="w-full rounded-lg border border-[#E7E5E4] bg-white py-2 pl-10 pr-4 text-sm text-[#1C1917] placeholder:text-[#78716C] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
           />
         </div>
         <div className="flex items-center gap-4 ml-4">
-          <a
-            href="/upload"
-            className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-[#EA580C] px-4 py-2 text-sm font-medium text-white hover:bg-[#DC4A04] transition-colors"
-          >
-            <Upload className="h-4 w-4" />
-            Upload contract
-          </a>
-          <a
-            href="/upload"
-            className="sm:hidden inline-flex items-center justify-center rounded-lg bg-[#EA580C] p-2 text-white hover:bg-[#DC4A04] transition-colors"
-          >
-            <Upload className="h-4 w-4" />
-          </a>
           <NotificationDropdown />
           <div className="hidden sm:block"><UserDropdown /></div>
         </div>
@@ -203,18 +196,21 @@ export default function ContractDetailPage() {
       <div className="flex-1 px-4 sm:px-6 lg:px-8 pb-8 pt-6 space-y-6">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1 text-sm text-[#78716C]">
-          <a href="/contracts" className="hover:text-[#1C1917] transition-colors">
-            Contracts
+          <a href="/dashboard/contracts" className="hover:text-[#1C1917] transition-colors">
+            Documents
           </a>
           <ChevronRight className="h-4 w-4" />
           <span className="text-[#1C1917] font-medium">{displayName}</span>
         </nav>
 
-        {/* Title + Status */}
-        <div className="flex items-center gap-3">
+        {/* Title + Status + Category */}
+        <div className="flex items-center gap-3 flex-wrap">
           <h1 className="font-display text-2xl font-bold text-[#1C1917]">
             {displayName}
           </h1>
+          <span className="inline-flex items-center rounded-full bg-stone-100 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-stone-600">
+            {categoryLabel}
+          </span>
           {contract.status === "processing" || contract.status === "queued" ? (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-600">
               <Loader2 className="h-3 w-3 animate-spin" />
@@ -236,7 +232,7 @@ export default function ContractDetailPage() {
             <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
             <div>
               <p className="text-sm font-medium text-blue-900">
-                {contract.status === "queued" ? "Contract queued for processing" : "Analyzing your contract…"}
+                {contract.status === "queued" ? "Document queued for processing" : "Analyzing your document…"}
               </p>
               <p className="text-xs text-blue-700">
                 This may take a minute. The page will auto-update when ready.
@@ -277,8 +273,8 @@ export default function ContractDetailPage() {
               onUpdate={updateContract}
             />
 
-            {/* Summary */}
-            {contract.extractionData?.summary && (
+            {/* AI Extraction Sections (hidden for manual entries) */}
+            {!isManualEntry && contract.extractionData?.summary && (
               <div className="rounded-2xl border border-[#E7E5E4] bg-white p-6">
                 <h2 className="font-display text-base font-semibold text-[#1C1917] mb-4">
                   Summary
@@ -289,8 +285,7 @@ export default function ContractDetailPage() {
               </div>
             )}
 
-            {/* Key Dates */}
-            {contract.extractionData?.key_dates && contract.extractionData.key_dates.length > 0 && (
+            {!isManualEntry && contract.extractionData?.key_dates && contract.extractionData.key_dates.length > 0 && (
               <div className="rounded-2xl border border-[#E7E5E4] bg-white p-6">
                 <h2 className="font-display text-base font-semibold text-[#1C1917] mb-4">
                   Key Dates
@@ -314,8 +309,7 @@ export default function ContractDetailPage() {
               </div>
             )}
 
-            {/* Renewal Clauses */}
-            {contract.extractionData?.renewal_clauses && contract.extractionData.renewal_clauses.length > 0 && (
+            {!isManualEntry && contract.extractionData?.renewal_clauses && contract.extractionData.renewal_clauses.length > 0 && (
               <div className="rounded-2xl border border-[#E7E5E4] bg-white p-6">
                 <h2 className="font-display text-base font-semibold text-[#1C1917] mb-4">
                   Renewal Clauses
@@ -331,8 +325,7 @@ export default function ContractDetailPage() {
               </div>
             )}
 
-            {/* Penalty Clauses */}
-            {contract.extractionData?.penalty_clauses && contract.extractionData.penalty_clauses.length > 0 && (
+            {!isManualEntry && contract.extractionData?.penalty_clauses && contract.extractionData.penalty_clauses.length > 0 && (
               <div className="rounded-2xl border border-[#E7E5E4] bg-white p-6">
                 <h2 className="font-display text-base font-semibold text-[#1C1917] mb-4">
                   Penalty Clauses
@@ -348,8 +341,7 @@ export default function ContractDetailPage() {
               </div>
             )}
 
-            {/* Processing / Failed states */}
-            {contract.status === "processing" || contract.status === "queued" ? (
+            {!isManualEntry && (contract.status === "processing" || contract.status === "queued") ? (
               <div className="rounded-2xl border border-[#E7E5E4] bg-white p-6">
                 <h2 className="font-display text-base font-semibold text-[#1C1917] mb-4">
                   Extraction
@@ -387,55 +379,59 @@ export default function ContractDetailPage() {
                 Quick Actions
               </h2>
               <div className="space-y-3">
-                <button
-                  onClick={async () => {
-                    try {
-                      const { data } = await api.get(`/contracts/${contract.id}/file`)
-                      window.open(data.url, "_blank")
-                    } catch {
-                      alert("Could not load file")
-                    }
-                  }}
-                  className="flex w-full items-center gap-3 rounded-lg border border-[#E7E5E4] px-4 py-2.5 text-sm font-medium text-[#1C1917] hover:bg-[#FAFAF9] transition-colors"
-                >
-                  <Eye className="h-4 w-4 text-[#78716C]" />
-                  View File
-                </button>
-                <button
-                  onClick={async () => {
-                    try {
-                      const { data } = await api.get(`/contracts/${contract.id}/file`)
-                      const link = document.createElement("a")
-                      link.href = data.url
-                      link.download = data.filename
-                      link.click()
-                    } catch {
-                      alert("Could not download file")
-                    }
-                  }}
-                  className="flex w-full items-center gap-3 rounded-lg border border-[#E7E5E4] px-4 py-2.5 text-sm font-medium text-[#1C1917] hover:bg-[#FAFAF9] transition-colors"
-                >
-                  <Download className="h-4 w-4 text-[#78716C]" />
-                  Download Original
-                </button>
-                <button
-                  onClick={async () => {
-                    try {
-                      await reprocessContract.mutateAsync(contract.id)
-                    } catch (e) {
-                      alert("Failed to reprocess: " + (e as Error).message)
-                    }
-                  }}
-                  disabled={reprocessContract.isPending || isProcessing}
-                  className="flex w-full items-center gap-3 rounded-lg border border-[#E7E5E4] px-4 py-2.5 text-sm font-medium text-[#1C1917] hover:bg-[#FAFAF9] transition-colors disabled:opacity-50"
-                >
-                  {reprocessContract.isPending || isProcessing ? (
-                    <Loader2 className="h-4 w-4 animate-spin text-[#78716C]" />
-                  ) : (
-                    <RefreshCw className="h-4 w-4 text-[#78716C]" />
-                  )}
-                  {isProcessing ? "Processing…" : "Re-analyze"}
-                </button>
+                {!isManualEntry && (
+                  <>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const { data } = await api.get(`/contracts/${contract.id}/file`)
+                          window.open(data.url, "_blank")
+                        } catch {
+                          alert("Could not load file")
+                        }
+                      }}
+                      className="flex w-full items-center gap-3 rounded-lg border border-[#E7E5E4] px-4 py-2.5 text-sm font-medium text-[#1C1917] hover:bg-[#FAFAF9] transition-colors"
+                    >
+                      <Eye className="h-4 w-4 text-[#78716C]" />
+                      View File
+                    </button>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const { data } = await api.get(`/contracts/${contract.id}/file`)
+                          const link = document.createElement("a")
+                          link.href = data.url
+                          link.download = data.filename
+                          link.click()
+                        } catch {
+                          alert("Could not download file")
+                        }
+                      }}
+                      className="flex w-full items-center gap-3 rounded-lg border border-[#E7E5E4] px-4 py-2.5 text-sm font-medium text-[#1C1917] hover:bg-[#FAFAF9] transition-colors"
+                    >
+                      <Download className="h-4 w-4 text-[#78716C]" />
+                      Download Original
+                    </button>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await reprocessContract.mutateAsync(contract.id)
+                        } catch (e) {
+                          alert("Failed to reprocess: " + (e as Error).message)
+                        }
+                      }}
+                      disabled={reprocessContract.isPending || isProcessing}
+                      className="flex w-full items-center gap-3 rounded-lg border border-[#E7E5E4] px-4 py-2.5 text-sm font-medium text-[#1C1917] hover:bg-[#FAFAF9] transition-colors disabled:opacity-50"
+                    >
+                      {reprocessContract.isPending || isProcessing ? (
+                        <Loader2 className="h-4 w-4 animate-spin text-[#78716C]" />
+                      ) : (
+                        <RefreshCw className="h-4 w-4 text-[#78716C]" />
+                      )}
+                      {isProcessing ? "Processing…" : "Re-analyze"}
+                    </button>
+                  </>
+                )}
                 <button
                   onClick={handleDelete}
                   disabled={deleteContract.isPending}
@@ -446,7 +442,7 @@ export default function ContractDetailPage() {
                   ) : (
                     <Trash2 className="h-4 w-4" />
                   )}
-                  Delete Contract
+                  Delete Document
                 </button>
               </div>
             </div>
@@ -489,7 +485,7 @@ function ContractDetailsCard({
   onUpdate: ReturnType<typeof useUpdateContract>
 }) {
   const [editing, setEditing] = useState(false)
-  const [vendor, setVendor] = useState(contract.vendor ?? "")
+  const [title, setTitle] = useState(contract.title ?? "")
   const [endDate, setEndDate] = useState(
     contract.endDate ? contract.endDate.slice(0, 10) : ""
   )
@@ -501,7 +497,7 @@ function ContractDetailsCard({
   )
 
   const startEditing = () => {
-    setVendor(contract.vendor ?? "")
+    setTitle(contract.title ?? "")
     setEndDate(contract.endDate ? contract.endDate.slice(0, 10) : "")
     setNoticeDays(contract.noticeDays != null ? String(contract.noticeDays) : "")
     setAutoRenews(contract.autoRenews ?? null)
@@ -515,7 +511,7 @@ function ContractDetailsCard({
   const save = async () => {
     await onUpdate.mutateAsync({
       id: contract.id,
-      vendor: vendor || undefined,
+      title: title || undefined,
       endDate: endDate || undefined,
       noticeDays: noticeDays ? Number(noticeDays) : undefined,
       autoRenews: autoRenews ?? undefined,
@@ -528,7 +524,7 @@ function ContractDetailsCard({
       <div className="rounded-2xl border border-[#EA580C]/30 bg-white p-6 ring-1 ring-[#EA580C]/10">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-display text-base font-semibold text-[#1C1917]">
-            Edit Contract Details
+            Edit Document Details
           </h2>
           <div className="flex items-center gap-2">
             <button
@@ -554,12 +550,12 @@ function ContractDetailsCard({
         </div>
         <div className="space-y-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm text-[#78716C]">Vendor</label>
+            <label className="text-sm text-[#78716C]">Title</label>
             <input
               type="text"
-              value={vendor}
-              onChange={(e) => setVendor(e.target.value)}
-              placeholder="e.g. Acme Corp"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Office Lease Agreement"
               className="rounded-lg border border-[#E7E5E4] bg-white px-3 py-2 text-sm text-[#1C1917] placeholder:text-[#A8A29E] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
             />
           </div>
@@ -615,7 +611,7 @@ function ContractDetailsCard({
     <div className="rounded-2xl border border-[#E7E5E4] bg-white p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-display text-base font-semibold text-[#1C1917]">
-          Contract Details
+          Document Details
         </h2>
         <button
           onClick={startEditing}
@@ -626,7 +622,7 @@ function ContractDetailsCard({
         </button>
       </div>
       <div className="space-y-4">
-        <DetailRow label="Vendor" value={contract.vendor ?? "—"} />
+        <DetailRow label="Title" value={contract.title ?? "—"} />
         <DetailRow
           label="End Date"
           value={contract.endDate ? formatDate(contract.endDate) : "—"}

@@ -8,23 +8,23 @@ const siteUrl =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Expiration Reminder AI — AI-Powered Contract Renewal Tracking",
+    default: "Expiration Reminder AI — Never Miss a Critical Deadline Again",
     template: "%s | Expiration Reminder AI",
   },
   description:
-    "Stop accidental contract auto-renewals. Upload your contracts and let AI extract key clauses, track renewal dates, and send timely alerts before deadlines.",
+    "Track expiration dates for contracts, licenses, insurance, certifications, and more. AI-powered extraction for uploaded documents, plus manual tracking for any deadline.",
   keywords: [
-    "contract management",
+    "expiration tracking",
+    "deadline tracking",
+    "document expiration",
+    "license renewal tracking",
     "contract renewal tracking",
-    "auto-renewal prevention",
+    "insurance expiration",
+    "certification tracking",
     "AI contract analysis",
-    "clause extraction",
-    "contract deadlines",
     "renewal alerts",
-    "SaaS contract management",
-    "vendor management",
-    "contract OCR",
-    "contract expiration tracker",
+    "deadline reminders",
+    "permit tracking",
     "subscription management",
   ],
   authors: [{ name: "Expiration Reminder AI" }],
@@ -46,23 +46,23 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: "Expiration Reminder AI",
-    title: "Expiration Reminder AI — AI-Powered Contract Renewal Tracking",
+    title: "Expiration Reminder AI — Never Miss a Critical Deadline Again",
     description:
-      "Stop accidental contract auto-renewals. Upload your contracts and let AI extract key clauses, track renewal dates, and send timely alerts.",
+      "Track expiration dates for contracts, licenses, insurance, certifications, and more. AI-powered document analysis and deadline tracking.",
     images: [
       {
         url: `${siteUrl}/opengraph-image`,
         width: 1200,
         height: 630,
-        alt: "Expiration Reminder AI — Never miss a contract renewal",
+        alt: "Expiration Reminder AI — Never miss a critical deadline",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Expiration Reminder AI — AI-Powered Contract Renewal Tracking",
+    title: "Expiration Reminder AI — Never Miss a Critical Deadline Again",
     description:
-      "Stop accidental contract auto-renewals. Upload your contracts and let AI extract key clauses, track renewal dates, and send timely alerts.",
+      "Track expiration dates for contracts, licenses, insurance, certifications, and more. AI-powered document analysis and deadline tracking.",
     creator: "@expirationreminderai",
     images: [`${siteUrl}/opengraph-image`],
   },
@@ -86,14 +86,14 @@ const jsonLd = {
   applicationCategory: "BusinessApplication",
   operatingSystem: "Web",
   description:
-    "AI-powered contract analysis that detects auto-renewal clauses, tracks cancellation deadlines, and sends timely email alerts.",
+    "Track expiration dates for contracts, licenses, insurance, certifications, and more. AI-powered document analysis and deadline tracking with automated email alerts.",
   offers: [
     {
       "@type": "Offer",
       name: "Free",
       price: "0",
       priceCurrency: "USD",
-      description: "Up to 3 contracts with basic email alerts",
+      description: "Up to 3 documents with basic email alerts",
     },
     {
       "@type": "Offer",
@@ -102,7 +102,7 @@ const jsonLd = {
       priceCurrency: "USD",
       billingIncrement: "P1M",
       description:
-        "Unlimited contracts, advanced alerts, confidence scores, and clause preview",
+        "Unlimited documents, AI extraction, advanced alerts, and clause preview",
     },
     {
       "@type": "Offer",
@@ -116,11 +116,11 @@ const jsonLd = {
   ],
   featureList: [
     "AI clause extraction",
-    "Auto-renewal detection",
+    "Multi-document type tracking",
+    "License and certification tracking",
     "OCR for scanned documents",
     "Email deadline alerts",
-    "Confidence scores",
-    "Team collaboration",
+    "Color-coded urgency dashboard",
   ],
 }
 

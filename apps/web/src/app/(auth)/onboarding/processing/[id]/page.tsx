@@ -84,7 +84,7 @@ export default function ProcessingPage() {
 
         // If file is gone and no contractId, redirect to upload page
         if (!file) {
-          router.replace("/upload")
+          router.replace("/dashboard/upload")
           return
         }
 
@@ -122,7 +122,7 @@ export default function ProcessingPage() {
         if (cancelled) return
         router.replace(`/onboarding/complete/${id}`)
       } catch {
-        if (!cancelled) router.replace("/upload")
+        if (!cancelled) router.replace("/dashboard/upload")
       }
     }
 

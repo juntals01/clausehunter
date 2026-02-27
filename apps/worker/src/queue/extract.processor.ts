@@ -76,8 +76,16 @@ export class ExtractProcessor extends WorkerHost {
                 }
             }
 
+            // Determine the document title with fallbacks
+            const contract = await this.contractRepository.findOne({ where: { id: contractId } });
+            const title = extraction.document_title
+                || extraction.vendor_name
+                || this.humanizeFilename(contract?.originalFilename)
+                || null;
+
             // Update contract with extracted fields + full extraction data
             await this.contractRepository.update(contractId, {
+                title,
                 vendor: extraction.vendor_name || null,
                 endDate,
                 noticeDays,
@@ -89,16 +97,16 @@ export class ExtractProcessor extends WorkerHost {
             console.log(`[BullMQ EXTRACT] Contract ${contractId} is now ready`);
 
             // Create notification + send email to user
-            const contract = await this.contractRepository.findOne({ where: { id: contractId } });
-            if (contract?.userId) {
-                const vendorName = extraction.vendor_name || contract.originalFilename;
+            const updatedContract = await this.contractRepository.findOne({ where: { id: contractId } });
+            if (updatedContract?.userId) {
+                const vendorName = title || contract?.originalFilename;
 
                 // In-app notification
                 await this.notificationRepository.save(
                     this.notificationRepository.create({
-                        userId: contract.userId,
+                        userId: updatedContract.userId,
                         type: 'contract_ready',
-                        title: 'Contract analysis complete',
+                        title: 'Document analysis complete',
                         message: `"${vendorName}" has been analyzed. View the extracted details now.`,
                         contractId,
                     }),
@@ -106,10 +114,10 @@ export class ExtractProcessor extends WorkerHost {
 
                 // Send email — "needs review" if key fields are missing, otherwise "ready"
                 try {
-                    const user = await this.userRepository.findOne({ where: { id: contract.userId } });
+                    const user = await this.userRepository.findOne({ where: { id: updatedContract.userId } });
                     if (user?.email) {
                         const webUrl = this.config.get('WEB_URL', 'http://localhost:3000');
-                        const contractUrl = `${webUrl}/contracts/${contractId}`;
+                        const contractUrl = `${webUrl}/dashboard/contracts/${contractId}`;
 
                         // Check which critical fields are missing
                         const missingFields: string[] = [];
@@ -118,23 +126,21 @@ export class ExtractProcessor extends WorkerHost {
                         if (!extraction.vendor_name) missingFields.push('Vendor Name');
 
                         if (missingFields.length > 0) {
-                            // Send "needs review" email
                             await this.emailQueue.add('send-email', {
                                 to: user.email,
                                 subject: `Action Required: "${vendorName}" needs your review`,
-                                html: this.emailService.generateContractNeedsReviewEmail(contract, missingFields, contractUrl),
+                                html: this.emailService.generateContractNeedsReviewEmail(updatedContract, missingFields, contractUrl),
                                 type: 'contract-alert',
                             });
                             console.log(`[BullMQ EXTRACT] Needs-review email enqueued for ${user.email} (missing: ${missingFields.join(', ')})`);
                         } else {
-                            // Send "contract ready" email
                             await this.emailQueue.add('send-email', {
                                 to: user.email,
-                                subject: `Contract Analyzed: ${vendorName}`,
-                                html: this.emailService.generateContractReadyEmail(contract, contractUrl),
+                                subject: `Document Analyzed: ${vendorName}`,
+                                html: this.emailService.generateContractReadyEmail(updatedContract, contractUrl),
                                 type: 'contract-alert',
                             });
-                            console.log(`[BullMQ EXTRACT] Contract-ready email enqueued for ${user.email}`);
+                            console.log(`[BullMQ EXTRACT] Document-ready email enqueued for ${user.email}`);
                         }
                     }
                 } catch (emailErr) {
@@ -165,8 +171,8 @@ export class ExtractProcessor extends WorkerHost {
                     this.notificationRepository.create({
                         userId: contract.userId,
                         type: 'contract_failed',
-                        title: 'Contract analysis failed',
-                        message: `"${contract.originalFilename}" could not be analyzed. You can retry from the contract page.`,
+                        title: 'Document analysis failed',
+                        message: `"${contract.originalFilename}" could not be analyzed. You can retry from the document page.`,
                         contractId,
                     }),
                 );
@@ -174,6 +180,21 @@ export class ExtractProcessor extends WorkerHost {
 
             throw error;
         }
+    }
+
+    /**
+     * Turn a filename like "my-contract_2025-renewal.pdf" into "My Contract 2025 Renewal"
+     */
+    private humanizeFilename(filename: string | null | undefined): string | null {
+        if (!filename) return null;
+        return filename
+            .replace(/\.[^/.]+$/, '')          // strip extension
+            .replace(/^\d{6,}-/, '')           // strip leading timestamp prefix (e.g. "1706610000000-")
+            .replace(/[_-]+/g, ' ')            // underscores/hyphens → spaces
+            .replace(/([a-z])([A-Z])/g, '$1 $2') // camelCase → spaces
+            .replace(/\s+/g, ' ')
+            .trim()
+            .replace(/\b\w/g, c => c.toUpperCase()); // Title Case
     }
 
     @OnWorkerEvent('completed')

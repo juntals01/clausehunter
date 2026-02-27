@@ -3,17 +3,18 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { FileSearch, LayoutDashboard, Upload, FileText, Settings, CreditCard, LifeBuoy, LogOut } from "lucide-react"
+import { FileSearch, LayoutDashboard, Upload, Plus, FileText, Settings, CreditCard, LifeBuoy, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/auth-context"
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/upload", icon: Upload, label: "Upload" },
-  { href: "/contracts", icon: FileText, label: "Contracts" },
-  { href: "/settings", icon: Settings, label: "Settings" },
-  { href: "/billing", icon: CreditCard, label: "Billing" },
-  { href: "/help", icon: LifeBuoy, label: "Help" },
+  { href: "/dashboard/upload", icon: Upload, label: "Upload Document" },
+  { href: "/dashboard/add", icon: Plus, label: "Add Reminder" },
+  { href: "/dashboard/contracts", icon: FileText, label: "Documents" },
+  { href: "/dashboard/settings", icon: Settings, label: "Settings" },
+  { href: "/dashboard/billing", icon: CreditCard, label: "Billing" },
+  { href: "/dashboard/help", icon: LifeBuoy, label: "Help" },
 ]
 
 function getInitials(name: string) {
@@ -40,7 +41,9 @@ export function UserSidebar() {
         </Link>
         <nav className="flex flex-col gap-1">
           {navItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
+            const isActive = item.href === "/dashboard"
+              ? pathname === "/dashboard"
+              : pathname === item.href || pathname.startsWith(item.href + "/")
             return (
               <Link
                 key={item.href}

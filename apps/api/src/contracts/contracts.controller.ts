@@ -17,6 +17,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
 import { ContractsService } from './contracts.service';
 import { UpdateContractDto } from './dto/update-contract.dto';
+import { CreateManualDocumentDto } from './dto/create-manual-document.dto';
 
 @Controller('contracts')
 @UseGuards(AuthGuard('jwt'))
@@ -33,6 +34,14 @@ export class ContractsController {
             throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
         }
         return this.contractsService.createContract(file, req.user.id);
+    }
+
+    @Post('manual')
+    async createManualDocument(
+        @Body() dto: CreateManualDocumentDto,
+        @Request() req: any,
+    ) {
+        return this.contractsService.createManualDocument(dto, req.user.id);
     }
 
     @Get()

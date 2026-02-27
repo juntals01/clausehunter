@@ -12,12 +12,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           "/dashboard",
           "/admin",
-          "/upload",
-          "/contracts",
-          "/settings",
-          "/billing",
-          "/help",
-          "/account",
           "/onboarding",
           "/auth",
           "/forgot-password",

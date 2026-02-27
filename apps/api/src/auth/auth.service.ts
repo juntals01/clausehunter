@@ -232,7 +232,7 @@ export class AuthService {
             userId: user.id,
             type: 'welcome',
             title: 'Welcome to ExpirationReminderAI!',
-            message: `Hi ${user.name}, upload your first contract to get started.`,
+            message: `Hi ${user.name}, add your first document to start tracking deadlines.`,
         }).catch((err) => {
             console.error('[AUTH] Failed to create welcome notification:', err.message);
         });
@@ -290,9 +290,9 @@ export class AuthService {
         <p>Welcome to ExpirationReminderAI! Your account has been created successfully.</p>
         <p>Here's what you can do:</p>
         <ul>
-          <li><strong>Upload contracts</strong> - Drop your PDF contracts and we'll extract key clauses automatically</li>
-          <li><strong>Track renewals</strong> - Get alerts before contract renewal deadlines</li>
-          <li><strong>Manage vendors</strong> - Keep all your vendor agreements in one place</li>
+          <li><strong>Upload documents</strong> - Drop your PDFs and we'll extract key dates and clauses automatically</li>
+          <li><strong>Track deadlines</strong> - Get alerts before expiration dates, renewals, and notice windows</li>
+          <li><strong>Add any document</strong> - Track licenses, insurance, certifications, contracts, and more</li>
         </ul>
         <a href="${this.webUrl}/dashboard" class="btn">Go to Dashboard</a>
         <p style="margin-top: 24px; color: #6b7280; font-size: 14px;">If you have any questions, visit our Help center or reply to this email.</p>

@@ -7,6 +7,13 @@ import { CloudUpload, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createOnboardingSession } from "@/lib/stores/onboarding-store"
 
+function dashedBorderStyle(color: string) {
+  const encoded = color.replace("#", "%23")
+  return {
+    backgroundImage: `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='20' ry='20' stroke='${encoded}' stroke-width='2' stroke-dasharray='16%2c 10' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e")`,
+  }
+}
+
 export function HeroDropzone() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
@@ -16,7 +23,6 @@ export function HeroDropzone() {
       if (acceptedFiles.length === 0) return
 
       setError(null)
-      // Create a session (persists to sessionStorage + keeps File in memory)
       const sessionId = createOnboardingSession(acceptedFiles[0])
       router.push(`/onboarding/processing/${sessionId}`)
     },
@@ -40,27 +46,30 @@ export function HeroDropzone() {
     maxFiles: 1,
   })
 
+  const borderColor = isDragActive
+    ? "#EA580C"
+    : error
+      ? "#F87171"
+      : "#FDBA74"
+
   return (
     <div
       {...getRootProps()}
       className={cn(
-        "w-full max-w-[420px] md:max-w-none md:flex-1 bg-white rounded-[20px] border-2 p-8 sm:p-[40px_36px] lg:p-[48px_44px] shadow-[0_8px_32px_-4px_rgba(234,88,12,0.06)] flex flex-col items-center gap-3.5 cursor-pointer transition-colors",
-        isDragActive
-          ? "border-[#EA580C] bg-orange-50/50"
-          : error
-            ? "border-red-400 hover:border-red-500"
-            : "border-[#FDBA74] hover:border-[#EA580C]/60"
+        "w-full max-w-[420px] md:max-w-none md:flex-1 rounded-[20px] p-8 sm:p-[40px_36px] lg:p-[48px_44px] shadow-[0_8px_32px_-4px_rgba(234,88,12,0.06)] flex flex-col items-center gap-3.5 cursor-pointer transition-colors",
+        isDragActive ? "bg-orange-50/50" : "bg-white"
       )}
+      style={dashedBorderStyle(borderColor)}
     >
       <input {...getInputProps()} />
       <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full bg-[#FFF7ED] flex items-center justify-center">
         <CloudUpload className="w-7 h-7 lg:w-9 lg:h-9 text-[#EA580C]" />
       </div>
       <h3 className="font-display text-lg lg:text-xl font-bold text-[#1C1917]">
-        {isDragActive ? "Drop your file here..." : "Drop your contract here"}
+        {isDragActive ? "Drop your file here..." : "Drop your document here"}
       </h3>
       <p className="text-sm lg:text-base text-[#78716C] text-center">
-        AI detects clauses &amp; renewal dates instantly
+        AI extracts key dates &amp; clauses instantly
       </p>
       {error && (
         <div className="flex items-center gap-2 text-red-600 bg-red-50 rounded-lg px-3 py-2 w-full">

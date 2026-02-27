@@ -19,6 +19,13 @@ import { useUploadContract } from "@/lib/hooks/use-contracts"
 import { UserDropdown } from "@/components/user-dropdown"
 import { NotificationDropdown } from "@/components/notification-dropdown"
 
+function dashedBorderStyle(color: string) {
+  const encoded = color.replace("#", "%23")
+  return {
+    backgroundImage: `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='${encoded}' stroke-width='2' stroke-dasharray='16%2c 10' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e")`,
+  }
+}
+
 type StepStatus = "done" | "active" | "pending"
 
 interface ProcessingStep {
@@ -53,7 +60,7 @@ export default function UploadPage() {
         setTimeout(() => {
           setUploadPhase("done")
           setTimeout(() => {
-            router.push(`/contracts/${contract.id}`)
+            router.push(`/dashboard/contracts/${contract.id}`)
           }, 1000)
         }, 1500)
       } catch (err: unknown) {
@@ -117,17 +124,17 @@ export default function UploadPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#78716C]" />
           <input
             type="text"
-            placeholder="Search contracts..."
+            placeholder="Search documents..."
             className="w-full rounded-lg border border-[#E7E5E4] bg-white py-2 pl-10 pr-4 text-sm text-[#1C1917] placeholder:text-[#78716C] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
           />
         </div>
         <div className="flex items-center gap-4 ml-4">
           <a
-            href="/upload"
+            href="/dashboard/upload"
             className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-[#EA580C] px-4 py-2 text-sm font-medium text-white hover:bg-[#DC4A04] transition-colors"
           >
             <Upload className="h-4 w-4" />
-            Upload contract
+            Upload Document
           </a>
           <NotificationDropdown />
           <div className="hidden sm:block"><UserDropdown /></div>
@@ -140,10 +147,10 @@ export default function UploadPage() {
           {/* Title */}
           <div className="text-center">
             <h1 className="font-display text-2xl font-bold text-[#1C1917]">
-              Upload Contract
+              Upload Document
             </h1>
             <p className="mt-1 text-sm text-[#78716C]">
-              Upload your contract and let AI do the rest
+              Upload your document and let AI extract key dates and clauses
             </p>
           </div>
 
@@ -151,13 +158,12 @@ export default function UploadPage() {
           <div
             {...getRootProps()}
             className={cn(
-              "rounded-2xl border-2 border-dashed bg-white p-16 text-center transition-colors",
-              isDragActive
-                ? "border-[#EA580C] bg-orange-50/50"
-                : "border-[#EA580C]/40",
+              "rounded-2xl bg-white p-16 text-center transition-colors",
+              isDragActive && "bg-orange-50/50",
               (uploadPhase === "uploading" || uploadPhase === "processing") &&
                 "pointer-events-none opacity-60"
             )}
+            style={dashedBorderStyle(isDragActive ? "#EA580C" : "rgba(234,88,12,0.4)")}
           >
             <input {...getInputProps()} />
             <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-orange-50">
@@ -169,7 +175,7 @@ export default function UploadPage() {
                 : "Drop files here or click to browse"}
             </p>
             <p className="mt-2 text-sm text-[#78716C]">
-              AI will auto-detect clauses and renewal dates
+              AI will auto-detect key dates and clauses
             </p>
             <button
               type="button"
@@ -267,7 +273,7 @@ export default function UploadPage() {
 
               {uploadPhase === "done" && (
                 <p className="mt-4 text-sm font-medium text-green-600">
-                  Redirecting to contract details...
+                  Redirecting to document details...
                 </p>
               )}
             </div>

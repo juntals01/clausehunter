@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import {
   Settings,
@@ -27,9 +28,19 @@ interface UserDropdownProps {
 
 export function UserDropdown({ variant = "user" }: UserDropdownProps) {
   const { user, logout } = useAuth()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
 
   const isAdmin = variant === "admin"
   const basePath = isAdmin ? "/admin" : ""
+
+  if (!mounted) {
+    return (
+      <div className="rounded-full">
+        <UserAvatar fallbackClassName={isAdmin ? "bg-[#4F46E5]" : "bg-[#EA580C]"} />
+      </div>
+    )
+  }
 
   return (
     <DropdownMenu>
@@ -59,19 +70,19 @@ export function UserDropdown({ variant = "user" }: UserDropdownProps) {
           {!isAdmin && (
             <>
               <DropdownMenuItem asChild>
-                <Link href="/account" className="cursor-pointer">
+                <Link href="/dashboard/account" className="cursor-pointer">
                   <User className="h-4 w-4 text-[#78716C]" />
                   <span>Account</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/settings" className="cursor-pointer">
+                <Link href="/dashboard/settings" className="cursor-pointer">
                   <Settings className="h-4 w-4 text-[#78716C]" />
                   <span>Settings</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/billing" className="cursor-pointer">
+                <Link href="/dashboard/billing" className="cursor-pointer">
                   <CreditCard className="h-4 w-4 text-[#78716C]" />
                   <span>Billing</span>
                 </Link>
@@ -79,7 +90,7 @@ export function UserDropdown({ variant = "user" }: UserDropdownProps) {
             </>
           )}
           <DropdownMenuItem asChild>
-            <Link href={isAdmin ? "/admin" : "/help"} className="cursor-pointer">
+            <Link href={isAdmin ? "/admin" : "/dashboard/help"} className="cursor-pointer">
               <HelpCircle className="h-4 w-4 text-[#78716C]" />
               <span>Help</span>
             </Link>

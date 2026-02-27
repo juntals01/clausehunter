@@ -74,8 +74,8 @@ export default function OnboardingCompletePage() {
             <Link
               href={
                 session.contractId
-                  ? `/contracts/${session.contractId}`
-                  : "/contracts"
+                  ? `/dashboard/contracts/${session.contractId}`
+                  : "/dashboard/contracts"
               }
             >
               View My Contract
@@ -83,7 +83,7 @@ export default function OnboardingCompletePage() {
           </Button>
 
           <Link
-            href="/upload"
+            href="/dashboard/upload"
             className="inline-flex items-center gap-2 text-sm font-medium text-[#78716C] hover:text-[#EA580C] transition-colors"
           >
             <Upload className="w-4 h-4" />

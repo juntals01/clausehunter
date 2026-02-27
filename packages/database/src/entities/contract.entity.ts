@@ -19,8 +19,14 @@ export class Contract {
     @Column({ name: 'user_id', type: 'uuid', nullable: true })
     userId!: string | null;
 
-    @Column({ name: 'original_filename', type: 'text' })
-    originalFilename!: string;
+    @Column({ type: 'text', nullable: true })
+    title!: string | null;
+
+    @Column({ type: 'text', default: 'contract' })
+    category!: string;
+
+    @Column({ name: 'original_filename', type: 'text', nullable: true })
+    originalFilename!: string | null;
 
     @Column({ name: 'stored_filename', type: 'text', nullable: true })
     storedFilename!: string | null;

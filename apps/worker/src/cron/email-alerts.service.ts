@@ -44,7 +44,7 @@ export class EmailAlertsService implements OnModuleInit {
                 relations: ['user'],
             });
 
-            console.log(`[EMAIL ALERTS] Checking ${contracts.length} contracts...`);
+            console.log(`[EMAIL ALERTS] Checking ${contracts.length} documents...`);
 
             for (const contract of contracts) {
                 if (!contract.endDate || contract.noticeDays === null) continue;
@@ -81,9 +81,10 @@ export class EmailAlertsService implements OnModuleInit {
 
                     try {
                         // Enqueue via BullMQ for rate-limited sending
+                        const docName = (contract as any).title || contract.vendor || 'Unknown';
                         await this.emailQueue.add('send-email', {
                             to: userEmail,
-                            subject: `Contract Alert: ${contract.vendor || 'Unknown Vendor'}`,
+                            subject: `Deadline Alert: ${docName}`,
                             html: this.emailService.generateAlertEmail(contract, daysLeft),
                             type: 'contract-alert',
                         });

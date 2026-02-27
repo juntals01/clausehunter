@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Bell, FileText, AlertCircle, CheckCheck, Clock, MessageSquare } from "lucide-react"
 import {
@@ -51,9 +52,19 @@ export function NotificationDropdown() {
   const { data } = useNotifications()
   const markAsRead = useMarkAsRead()
   const markAllAsRead = useMarkAllAsRead()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
 
   const notifications = data?.notifications ?? []
   const unreadCount = data?.unreadCount ?? 0
+
+  if (!mounted) {
+    return (
+      <button className="relative rounded-lg p-2 text-[#78716C]">
+        <Bell className="h-5 w-5" />
+      </button>
+    )
+  }
 
   return (
     <DropdownMenu>
@@ -106,9 +117,9 @@ export function NotificationDropdown() {
                   onClick={() => {
                     if (!notif.read) markAsRead.mutate(notif.id)
                     if (notif.type === "ticket_response") {
-                      router.push("/help")
+                      router.push("/dashboard/help")
                     } else if (notif.contractId) {
-                      router.push(`/contracts/${notif.contractId}`)
+                      router.push(`/dashboard/contracts/${notif.contractId}`)
                     }
                   }}
                 >

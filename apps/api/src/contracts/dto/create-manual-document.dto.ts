@@ -1,5 +1,6 @@
 import {
     IsString,
+    IsNotEmpty,
     IsDate,
     IsNumber,
     IsBoolean,
@@ -14,15 +15,14 @@ const CATEGORIES = [
     'permit', 'subscription', 'lease', 'registration', 'other',
 ] as const;
 
-export class UpdateContractDto {
+export class CreateManualDocumentDto {
     @IsString()
-    @IsOptional()
-    title?: string;
+    @IsNotEmpty()
+    title!: string;
 
     @IsString()
     @IsIn(CATEGORIES)
-    @IsOptional()
-    category?: string;
+    category!: string;
 
     @IsString()
     @IsOptional()

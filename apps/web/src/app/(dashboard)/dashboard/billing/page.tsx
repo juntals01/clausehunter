@@ -110,7 +110,7 @@ function BillingContent() {
         </div>
         <div className="flex items-center gap-4 ml-4">
           <a
-            href="/upload"
+            href="/dashboard/upload"
             className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-[#EA580C] px-4 py-2 text-sm font-medium text-white hover:bg-[#DC4A04] transition-colors"
           >
             <Upload className="h-4 w-4" />

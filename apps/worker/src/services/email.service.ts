@@ -112,9 +112,9 @@ export class EmailService implements OnModuleInit {
         <p>Welcome to ExpirationReminderAI! Your account has been created successfully.</p>
         <p>Here's what you can do:</p>
         <ul>
-          <li><strong>Upload contracts</strong> - Drop your PDF contracts and we'll extract key clauses automatically</li>
-          <li><strong>Track renewals</strong> - Get alerts before contract renewal deadlines</li>
-          <li><strong>Manage vendors</strong> - Keep all your vendor agreements in one place</li>
+          <li><strong>Upload documents</strong> - Drop your PDFs and we'll extract key dates and clauses automatically</li>
+          <li><strong>Track deadlines</strong> - Get alerts before expiration dates, renewals, and notice windows</li>
+          <li><strong>Add any document</strong> - Track licenses, insurance, certifications, contracts, and more</li>
         </ul>
         <a href="${this.webUrl}/dashboard" class="btn">Go to Dashboard</a>
         <p style="margin-top: 24px; color: #6b7280; font-size: 14px;">If you have any questions, visit our Help center or reply to this email.</p>
@@ -142,31 +142,33 @@ export class EmailService implements OnModuleInit {
             badgeColor = '#EF4444';
         }
 
-        return this.baseTemplate(`${urgency}: Contract Renewal Alert`, `
-        <p>You have a contract that requires attention:</p>
+        const docName = contract.title || contract.vendor || 'Unknown';
+        return this.baseTemplate(`${urgency}: Deadline Alert`, `
+        <p>You have a document that requires attention:</p>
+        <div class="detail"><span class="label">Document:</span> ${docName}</div>
         <div class="detail"><span class="label">Vendor:</span> ${contract.vendor || 'Unknown'}</div>
-        <div class="detail"><span class="label">Contract End Date:</span> ${contract.endDate ? new Date(contract.endDate).toLocaleDateString() : 'Unknown'}</div>
+        <div class="detail"><span class="label">Due Date:</span> ${contract.endDate ? new Date(contract.endDate).toLocaleDateString() : 'Unknown'}</div>
         <div class="detail"><span class="label">Notice Period:</span> ${contract.noticeDays || 'Unknown'} days</div>
-        <div class="detail"><span class="label">Days Left to Cancel:</span> <span class="badge" style="background: ${badgeColor}; color: white;">${daysLeft} days</span></div>
+        <div class="detail"><span class="label">Days Left:</span> <span class="badge" style="background: ${badgeColor}; color: white;">${daysLeft} days</span></div>
         <div class="detail"><span class="label">Auto-Renews:</span> ${contract.autoRenews ? 'Yes' : 'No'}</div>
         ${daysLeft <= 0
             ? '<p style="color: #DC2626; font-weight: bold; margin-top: 16px;">The notice window is now open or has passed. Take action immediately!</p>'
             : `<p style="margin-top: 16px;">You have <strong>${daysLeft} days</strong> left to provide notice if you wish to cancel or renegotiate.</p>`
         }
-        <a href="${this.webUrl}/contracts/${contract.id || ''}" class="btn">View Contract</a>
+        <a href="${this.webUrl}/dashboard/contracts/${contract.id || ''}" class="btn">View Document</a>
         `);
     }
 
     generateContractReadyEmail(contract: any, contractUrl: string): string {
-        return this.baseTemplate('Contract Analysis Complete', `
-        <p>Great news! Your contract has been analyzed and is ready to view.</p>
-        <div class="detail"><span class="label">File:</span> ${contract.originalFilename || 'Contract'}</div>
+        return this.baseTemplate('Document Analysis Complete', `
+        <p>Great news! Your document has been analyzed and is ready to view.</p>
+        <div class="detail"><span class="label">File:</span> ${contract.originalFilename || 'Document'}</div>
         <div class="detail"><span class="label">Vendor:</span> ${contract.vendor || 'Not detected'}</div>
-        <div class="detail"><span class="label">End Date:</span> ${contract.endDate ? new Date(contract.endDate).toLocaleDateString() : 'Not detected'}</div>
+        <div class="detail"><span class="label">Due Date:</span> ${contract.endDate ? new Date(contract.endDate).toLocaleDateString() : 'Not detected'}</div>
         <div class="detail"><span class="label">Notice Period:</span> ${contract.noticeDays != null ? `${contract.noticeDays} days` : 'Not detected'}</div>
         <div class="detail"><span class="label">Auto-Renews:</span> ${contract.autoRenews === true ? 'Yes' : contract.autoRenews === false ? 'No' : 'Not detected'}</div>
-        <p style="margin-top: 16px; color: #6b7280; font-size: 14px;">Review the extracted clauses and details to ensure everything looks correct. You can edit any field from the contract page.</p>
-        <a href="${contractUrl}" class="btn">View Contract</a>
+        <p style="margin-top: 16px; color: #6b7280; font-size: 14px;">Review the extracted details to ensure everything looks correct. You can edit any field from the document page.</p>
+        <a href="${contractUrl}" class="btn">View Document</a>
         `);
     }
 
@@ -175,15 +177,15 @@ export class EmailService implements OnModuleInit {
             .map((f) => `<li style="color: #B45309;">${f}</li>`)
             .join('');
 
-        return this.baseTemplate('Action Required: Contract Needs Review', `
-        <p>Your contract has been analyzed, but we couldn't automatically extract some important details:</p>
-        <div class="detail"><span class="label">File:</span> ${contract.originalFilename || 'Contract'}</div>
+        return this.baseTemplate('Action Required: Document Needs Review', `
+        <p>Your document has been analyzed, but we couldn't automatically extract some important details:</p>
+        <div class="detail"><span class="label">File:</span> ${contract.originalFilename || 'Document'}</div>
         <div class="detail"><span class="label">Vendor:</span> ${contract.vendor || 'Not detected'}</div>
         <div style="margin-top: 16px; padding: 16px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px;">
           <p style="margin: 0 0 8px 0; font-weight: 600; color: #92400E;">⚠️ Missing details:</p>
           <ul style="margin: 0; padding-left: 20px;">${missingList}</ul>
         </div>
-        <p style="margin-top: 16px;">Without these details, we can't send you renewal deadline alerts. Please review the contract and fill in the missing fields manually.</p>
+        <p style="margin-top: 16px;">Without these details, we can't send you deadline alerts. Please review the document and fill in the missing fields manually.</p>
         <a href="${contractUrl}" class="btn">Review &amp; Complete Details</a>
         `);
     }
