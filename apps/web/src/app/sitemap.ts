@@ -5,7 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
 async function getBlogSlugs(): Promise<{ slug: string; updatedAt: string }[]> {
   try {
     const res = await fetch(`${API_URL}/blog/slugs`, {
-      next: { revalidate: 3600 },
+      cache: "no-store",
     })
     if (!res.ok) return []
     return res.json()
@@ -41,6 +41,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${siteUrl}/contact`,
       lastModified: new Date(),
       changeFrequency: "yearly",
+      priority: 0.5,
+    },
+    {
+      url: `${siteUrl}/feature-requests`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
       priority: 0.5,
     },
     {

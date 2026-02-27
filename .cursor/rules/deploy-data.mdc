@@ -1,0 +1,93 @@
+---
+description: How to sync local database records and files to production via Railway SSH
+alwaysApply: true
+---
+
+# Syncing Local Data to Production (Railway)
+
+When the user asks to deploy/upload/sync data from local to production, follow this workflow.
+
+## Prerequisites
+
+- Railway CLI linked to project: `railway status` to verify
+- Current service: `railway service link api`
+- Local services running (Postgres, MinIO via docker-compose)
+
+## 1. Database Records
+
+Use `railway ssh` with a base64-encoded Node.js script to insert/update records.
+
+```bash
+# Write script to /tmp/sync-data.js, then:
+base64 -i /tmp/sync-data.js | tr -d '\n' > /tmp/sync-data.b64
+B64=$(cat /tmp/sync-data.b64)
+railway ssh -s api "echo '$B64' | base64 -d > /app/sync-data.js && cd /app && node sync-data.js && rm sync-data.js"
+```
+
+**Important:** The script must run from `/app` so `require('pg')` resolves from `node_modules`. Never run from `/tmp`.
+
+### Script template
+
+```javascript
+const { Client } = require('pg');
+async function main() {
+  const c = new Client({ connectionString: process.env.DATABASE_URL });
+  await c.connect();
+  // Check existence first to make it idempotent
+  const existing = await c.query('SELECT id FROM table WHERE unique_col = $1', [value]);
+  if (existing.rows.length > 0) { console.log('Already exists'); await c.end(); return; }
+  // Insert
+  const r = await c.query('INSERT INTO table (...) VALUES ($1, ...) RETURNING id', [values]);
+  console.log('Created:', JSON.stringify(r.rows[0]));
+  await c.end();
+}
+main().catch(e => { console.error(e); process.exit(1); });
+```
+
+### Quick queries (no script file needed)
+
+```bash
+railway ssh -s api "cd /app && node -e \"const{Client}=require('pg');const c=new Client({connectionString:process.env.DATABASE_URL});c.connect().then(()=>c.query('SELECT ...').then(r=>{console.log(JSON.stringify(r.rows));c.end()}))\""
+```
+
+## 2. File Uploads (MinIO)
+
+Use the `mc` (MinIO Client) CLI to copy files between local and production.
+
+```bash
+# Local MinIO alias
+mc alias set localminio http://localhost:9000 minioadmin minioadmin
+
+# Production MinIO alias (get creds via SSH)
+railway ssh -s api "env | grep MINIO"
+mc alias set prodminio https://<MINIO_PUBLIC_ENDPOINT> <ACCESS_KEY> <SECRET_KEY>
+
+# Download from local, upload to production
+mc cp localminio/contracts/<path> /tmp/file.ext
+mc cp /tmp/file.ext prodminio/contracts/<path>
+```
+
+## 3. Migrations
+
+```bash
+railway ssh -s api "cd /app/packages/database && npx typeorm-ts-node-commonjs migration:run -d src/data-source.ts"
+```
+
+## 4. Verify
+
+Always verify after syncing:
+
+```bash
+# Check API endpoint
+curl -s https://api.expirationreminderai.com/<endpoint>
+
+# Check frontend
+curl -s -o /dev/null -w "%{http_code}" https://expirationreminderai.com/<page>
+```
+
+## Key Notes
+
+- Production admin uses Google OAuth — cannot get JWT via password login
+- `psql` is not installed in the API container — use Node.js + `pg` module
+- Always make insert scripts **idempotent** (check before insert)
+- Clean up temp files after sync
