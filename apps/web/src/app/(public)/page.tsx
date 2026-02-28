@@ -20,6 +20,11 @@ import {
   Briefcase,
   Server,
   Building2,
+  Zap,
+  CheckCircle2,
+  CalendarDays,
+  RefreshCw,
+  Clock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { HeroDropzone } from "@/components/hero-dropzone"
@@ -290,15 +295,142 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── AI Extraction Demo ─── */}
+      <section className="bg-white px-5 sm:px-8 md:px-12 lg:px-[120px] py-12 lg:py-20">
+        <div className="flex flex-col items-center">
+          <div className="mb-6">
+            <span className="inline-flex items-center gap-2 bg-[#FFF7ED] border border-[#FDBA74] rounded-full px-4 py-1.5">
+              <Brain className="w-4 h-4 text-[#EA580C]" />
+              <span className="text-sm font-medium text-[#EA580C]">
+                See It in Action
+              </span>
+            </span>
+          </div>
+          <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#1C1917] mb-4 text-center">
+            AI-Powered Contract Renewal Tracking
+          </h2>
+          <p className="text-base lg:text-[17px] text-[#78716C] mb-10 lg:mb-14 text-center max-w-[580px]">
+            Upload any contract and our AI instantly identifies renewal clauses,
+            notice periods, and critical deadlines — so you know exactly when to act.
+          </p>
+
+          <div className="w-full max-w-5xl flex flex-col lg:flex-row items-stretch gap-6 lg:gap-0">
+            {/* Left: Contract Snippet */}
+            <div className="flex-1 rounded-2xl lg:rounded-r-none border border-[#E7E5E4] bg-gradient-to-b from-[#FAFAF9] to-white p-6 sm:p-8 flex flex-col">
+              <div className="flex items-center gap-2 mb-5">
+                <div className="w-9 h-9 rounded-lg bg-[#F5F5F4] flex items-center justify-center">
+                  <FileText className="w-4 h-4 text-[#78716C]" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-[#78716C] uppercase tracking-wider">Uploaded Document</p>
+                  <p className="text-sm font-semibold text-[#1C1917]">office-lease-agreement.pdf</p>
+                </div>
+              </div>
+              <div className="flex-1 rounded-xl bg-white border border-[#E7E5E4] p-5 font-mono text-[13px] leading-[1.8] text-[#44403C] space-y-4">
+                <p className="text-[#A8A29E]">// Section 4.2 — Term & Renewal</p>
+                <p>
+                  The initial term of this Lease shall commence on{" "}
+                  <span className="bg-blue-50 text-blue-700 px-1 rounded font-semibold">January 1, 2025</span>{" "}
+                  and shall expire on{" "}
+                  <span className="bg-red-50 text-red-600 px-1 rounded font-semibold">December 31, 2026</span>,
+                  unless sooner terminated in accordance with the provisions hereof.
+                </p>
+                <p>
+                  This Agreement shall{" "}
+                  <span className="bg-amber-50 text-amber-700 px-1 rounded font-semibold">automatically renew</span>{" "}
+                  for successive{" "}
+                  <span className="bg-violet-50 text-violet-700 px-1 rounded font-semibold">12-month</span>{" "}
+                  periods unless either party provides written notice of non-renewal at least{" "}
+                  <span className="bg-orange-50 text-[#EA580C] px-1 rounded font-semibold">60 days</span>{" "}
+                  prior to the expiration of the then-current term.
+                </p>
+                <p className="text-[#A8A29E]">// Section 8.1 — Early Termination</p>
+                <p>
+                  In the event of early termination, Tenant shall pay a fee equal to{" "}
+                  <span className="bg-red-50 text-red-600 px-1 rounded font-semibold">3 months&apos; rent</span>.
+                </p>
+              </div>
+            </div>
+
+            {/* Center: AI Transform Indicator */}
+            <div className="flex lg:flex-col items-center justify-center gap-2 py-2 lg:py-0 lg:px-0 lg:-mx-5 z-10">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#EA580C] to-[#F97316] shadow-lg shadow-orange-200/60 flex items-center justify-center">
+                <Zap className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#EA580C]">AI</span>
+            </div>
+
+            {/* Right: Extraction Result */}
+            <div className="flex-1 rounded-2xl lg:rounded-l-none border border-[#E7E5E4] bg-white p-6 sm:p-8 flex flex-col">
+              <div className="flex items-center gap-2 mb-5">
+                <div className="w-9 h-9 rounded-lg bg-[#FFF7ED] flex items-center justify-center">
+                  <ScanSearch className="w-4 h-4 text-[#EA580C]" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-[#78716C] uppercase tracking-wider">AI Extraction</p>
+                  <p className="text-sm font-semibold text-[#1C1917]">Office Lease Agreement</p>
+                </div>
+              </div>
+
+              <div className="flex-1 space-y-3">
+                {/* Extracted fields */}
+                <div className="flex items-center justify-between py-2.5 border-b border-[#F5F5F4]">
+                  <span className="flex items-center gap-2 text-sm text-[#78716C]">
+                    <CalendarDays className="w-3.5 h-3.5" /> End Date
+                  </span>
+                  <span className="text-sm font-semibold text-[#1C1917]">Dec 31, 2026</span>
+                </div>
+                <div className="flex items-center justify-between py-2.5 border-b border-[#F5F5F4]">
+                  <span className="flex items-center gap-2 text-sm text-[#78716C]">
+                    <Clock className="w-3.5 h-3.5" /> Notice Period
+                  </span>
+                  <span className="text-sm font-semibold text-[#1C1917]">60 days</span>
+                </div>
+                <div className="flex items-center justify-between py-2.5 border-b border-[#F5F5F4]">
+                  <span className="flex items-center gap-2 text-sm text-[#78716C]">
+                    <AlarmClock className="w-3.5 h-3.5" /> Cancel By
+                  </span>
+                  <span className="text-sm font-semibold text-amber-600">Nov 1, 2026</span>
+                </div>
+                <div className="flex items-center justify-between py-2.5 border-b border-[#F5F5F4]">
+                  <span className="flex items-center gap-2 text-sm text-[#78716C]">
+                    <RefreshCw className="w-3.5 h-3.5" /> Auto-Renews
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">Yes — 12 months</span>
+                </div>
+                <div className="flex items-center justify-between py-2.5 border-b border-[#F5F5F4]">
+                  <span className="flex items-center gap-2 text-sm text-[#78716C]">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Confidence
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-semibold text-green-700">
+                    <CheckCircle2 className="w-3 h-3" /> High
+                  </span>
+                </div>
+
+                {/* Clause preview */}
+                <div className="mt-4 rounded-xl border-l-4 border-[#EA580C] bg-orange-50/50 p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#EA580C] mb-1.5">Renewal Clause Detected</p>
+                  <p className="text-xs text-[#44403C] leading-relaxed italic">
+                    &ldquo;This Agreement shall automatically renew for successive 12-month
+                    periods unless either party provides written notice of non-renewal
+                    at least 60 days prior...&rdquo;
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ─── Features Section ─── */}
       <section id="features" className="px-5 sm:px-8 md:px-12 lg:px-[120px] py-12 lg:py-20 bg-[#FFFBF5]">
         <div className="flex flex-col items-center">
           <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#1C1917] mb-4 text-center">
-            Everything You Need to Stay Protected
+            AI-Powered Tracking and More
           </h2>
           <p className="text-base lg:text-[17px] text-[#78716C] mb-10 lg:mb-14 text-center max-w-[560px]">
-            Powerful features designed to catch what you might miss — from AI-powered
-            contract analysis to deadline tracking for any document type.
+            From automatic contract renewal detection to smart deadline alerts — everything
+            you need to stay ahead of expirations across all your documents.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 w-full">
