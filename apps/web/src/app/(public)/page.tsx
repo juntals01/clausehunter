@@ -25,6 +25,10 @@ import {
   CalendarDays,
   RefreshCw,
   Clock,
+  Shield,
+  Lock,
+  Eye,
+  ServerCrash,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { HeroDropzone } from "@/components/hero-dropzone"
@@ -478,8 +482,89 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── Security & Compliance ─── */}
+      <section className="bg-[#FFFBF5] px-5 sm:px-8 md:px-12 lg:px-[120px] py-12 lg:py-20">
+        <div className="flex flex-col items-center">
+          <div className="mb-6">
+            <span className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-4 py-1.5">
+              <Shield className="w-4 h-4 text-emerald-600" />
+              <span className="text-sm font-medium text-emerald-700">
+                HIPAA Compliant
+              </span>
+            </span>
+          </div>
+          <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#1C1917] mb-4 text-center">
+            Enterprise-Grade Security
+          </h2>
+          <p className="text-base lg:text-[17px] text-[#78716C] mb-10 lg:mb-14 text-center max-w-[580px]">
+            Your documents contain sensitive information. We protect them with
+            HIPAA-compliant infrastructure and industry-leading security practices.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 w-full max-w-5xl">
+            <div className="flex flex-col items-center text-center rounded-2xl border border-[#E7E5E4] p-6 bg-white">
+              <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-4">
+                <Shield className="w-6 h-6 text-emerald-600" />
+              </div>
+              <h3 className="font-display text-base font-bold text-[#1C1917] mb-2">
+                HIPAA Compliant
+              </h3>
+              <p className="text-sm text-[#78716C] leading-relaxed">
+                Fully compliant with HIPAA regulations for handling protected health information and sensitive documents.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center text-center rounded-2xl border border-[#E7E5E4] p-6 bg-white">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
+                <Lock className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="font-display text-base font-bold text-[#1C1917] mb-2">
+                Encrypted at Rest &amp; Transit
+              </h3>
+              <p className="text-sm text-[#78716C] leading-relaxed">
+                AES-256 encryption for stored documents and TLS 1.3 for all data in transit. Your files are never exposed.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center text-center rounded-2xl border border-[#E7E5E4] p-6 bg-white">
+              <div className="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center mb-4">
+                <Eye className="w-6 h-6 text-violet-600" />
+              </div>
+              <h3 className="font-display text-base font-bold text-[#1C1917] mb-2">
+                Zero Third-Party Sharing
+              </h3>
+              <p className="text-sm text-[#78716C] leading-relaxed">
+                Your documents are never shared, sold, or used for training. AI processing happens in isolated, secure environments.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center text-center rounded-2xl border border-[#E7E5E4] p-6 bg-white">
+              <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center mb-4">
+                <ServerCrash className="w-6 h-6 text-amber-600" />
+              </div>
+              <h3 className="font-display text-base font-bold text-[#1C1917] mb-2">
+                SOC 2 Infrastructure
+              </h3>
+              <p className="text-sm text-[#78716C] leading-relaxed">
+                Hosted on SOC 2 certified infrastructure with automated backups, audit logs, and 99.9% uptime guarantee.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 text-sm text-[#78716C]">
+            <Link href="/privacy" className="hover:text-[#EA580C] transition-colors underline underline-offset-2">
+              Privacy Policy
+            </Link>
+            <span className="hidden sm:block w-1 h-1 rounded-full bg-[#D6D3D1]" />
+            <Link href="/terms" className="hover:text-[#EA580C] transition-colors underline underline-offset-2">
+              Terms of Service
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ─── Social Proof Section ─── */}
-      <section className="bg-[#FFFBF5] px-5 sm:px-8 md:px-12 lg:px-[120px] py-10 lg:py-12">
+      <section className="bg-white px-5 sm:px-8 md:px-12 lg:px-[120px] py-10 lg:py-12">
         <div className="flex flex-col items-center">
           <p className="text-[11px] tracking-[3px] text-[#B0B0B0] uppercase font-medium mb-6">
             Trusted by teams at
