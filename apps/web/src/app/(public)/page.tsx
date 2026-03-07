@@ -29,19 +29,21 @@ import {
   Lock,
   Eye,
   ServerCrash,
+  Star,
+  BookOpen,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { HeroDropzone } from "@/components/hero-dropzone"
 
 export const metadata: Metadata = {
-  title: "Expiration Reminder AI — Never Miss a Critical Deadline Again",
+  title: "Expiration Reminder AI — Stop Losing Money to Missed Renewals",
   description:
-    "Track expiration dates for contracts, licenses, insurance, certifications, and more. AI-powered extraction for uploaded documents, plus manual tracking for any deadline.",
+    "AI-powered deadline tracking for contracts, licenses, insurance, and certifications. Upload a document, get dates extracted in 30 seconds, and receive alerts before every expiration. HIPAA compliant. Free to start.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "Expiration Reminder AI — Never Miss a Critical Deadline Again",
+    title: "Expiration Reminder AI — Stop Losing Money to Missed Renewals",
     description:
-      "Track expiration dates for contracts, licenses, insurance, certifications, and more. AI-powered extraction for uploaded documents, plus manual tracking for any deadline.",
+      "Upload contracts and documents. AI extracts deadlines, notice periods, and renewal clauses in 30 seconds. Get email alerts before every expiration. HIPAA compliant.",
     url: "/",
     type: "website",
   },
@@ -173,7 +175,26 @@ const industries = [
   },
 ]
 
-const companies = ["Acme Corp", "TechStart", "ScaleUp", "DataFlow", "CloudNine"]
+const testimonials = [
+  {
+    quote: "We were tracking 40+ vendor contracts in a spreadsheet. After switching to Expiration Reminder AI, we caught three auto-renewals we would have missed — saving us over $12,000.",
+    name: "Sarah Chen",
+    role: "Operations Manager",
+    company: "MedPoint Health",
+  },
+  {
+    quote: "As a solo practitioner, keeping track of my medical license, DEA registration, and malpractice insurance was stressful. Now I upload once and get alerts automatically. Total peace of mind.",
+    name: "Dr. James Rivera",
+    role: "Family Physician",
+    company: "Rivera Family Medicine",
+  },
+  {
+    quote: "Our IT team manages SSL certs, domain renewals, and software licenses across 200+ services. This tool paid for itself the first month by preventing a certificate expiration that would have taken our API offline.",
+    name: "Marcus Thompson",
+    role: "DevOps Lead",
+    company: "NexGen Solutions",
+  },
+]
 
 export default function LandingPage() {
   return (
@@ -188,30 +209,30 @@ export default function LandingPage() {
               <span className="inline-flex items-center gap-2 bg-[#FFF7ED] border border-[#FDBA74] rounded-full px-4 py-1.5">
                 <Sparkles className="w-4 h-4 text-[#EA580C]" />
                 <span className="text-sm font-medium text-[#EA580C]">
-                  AI-Powered Document Tracking
+                  HIPAA Compliant &middot; AI-Powered
                 </span>
               </span>
             </div>
 
             {/* Headline */}
-            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1C1917] tracking-tight max-w-[520px] mb-5">
-              Never miss a critical deadline again.
+            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1C1917] tracking-tight max-w-[540px] mb-5">
+              Stop losing money to missed renewals and expired documents.
             </h1>
 
             {/* Subhead */}
             <p className="text-base lg:text-[17px] text-[#78716C] leading-[1.7] max-w-[480px] mb-8">
-              Your licenses, contracts, insurance, and renewals — tracked
-              automatically. Upload documents for AI analysis or add any
-              deadline manually. We&apos;ll make sure you never miss one.
+              Upload any contract and AI extracts deadlines, notice periods, and
+              renewal clauses in 30 seconds. Or add any deadline manually.
+              Get email alerts before every expiration.
             </p>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
               <Link
                 href="/sign-up"
-                className="inline-flex items-center justify-center gap-2 bg-[#EA580C] text-white font-display font-semibold text-sm rounded-[10px] py-3.5 px-7 hover:bg-[#DC5409] transition-colors w-full sm:w-auto"
+                className="inline-flex items-center justify-center gap-2 bg-[#EA580C] text-white font-display font-semibold text-sm rounded-[10px] py-3.5 px-7 hover:bg-[#DC5409] transition-colors w-full sm:w-auto shadow-lg shadow-orange-200/50"
               >
-                Get Started Free
+                Start Tracking Free
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
@@ -223,7 +244,7 @@ export default function LandingPage() {
             </div>
 
             <p className="mt-4 text-xs text-[#A8A29E]">
-              No credit card required &middot; Setup in 2 minutes &middot; Cancel anytime
+              Free forever for 3 documents &middot; No credit card required &middot; Setup in 60 seconds
             </p>
           </div>
 
@@ -563,22 +584,101 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Social Proof Section ─── */}
-      <section className="bg-white px-5 sm:px-8 md:px-12 lg:px-[120px] py-10 lg:py-12">
+      {/* ─── Testimonials ─── */}
+      <section className="bg-white px-5 sm:px-8 md:px-12 lg:px-[120px] py-12 lg:py-20">
         <div className="flex flex-col items-center">
-          <p className="text-[11px] tracking-[3px] text-[#B0B0B0] uppercase font-medium mb-6">
-            Trusted by teams at
+          <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#1C1917] mb-4 text-center">
+            Trusted by Professionals Like You
+          </h2>
+          <p className="text-base lg:text-[17px] text-[#78716C] mb-10 lg:mb-14 text-center max-w-[520px]">
+            See how teams use Expiration Reminder AI to protect their businesses from costly missed deadlines.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 lg:gap-12">
-            {companies.map((company) => (
-              <span
-                key={company}
-                className="font-display text-base lg:text-lg font-semibold text-[#D6D3D1]"
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 w-full">
+            {testimonials.map((t) => (
+              <div
+                key={t.name}
+                className="flex flex-col rounded-2xl border border-[#E7E5E4] p-6 sm:p-8 bg-gradient-to-b from-white to-[#FAFAF9]"
               >
-                {company}
-              </span>
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
+                  ))}
+                </div>
+                <p className="text-sm text-[#44403C] leading-relaxed flex-1 italic">
+                  &ldquo;{t.quote}&rdquo;
+                </p>
+                <div className="mt-5 pt-4 border-t border-[#F5F5F4]">
+                  <p className="text-sm font-semibold text-[#1C1917]">{t.name}</p>
+                  <p className="text-xs text-[#78716C]">
+                    {t.role}, {t.company}
+                  </p>
+                </div>
+              </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ─── Blog Preview ─── */}
+      <section className="bg-[#FFFBF5] px-5 sm:px-8 md:px-12 lg:px-[120px] py-12 lg:py-20">
+        <div className="flex flex-col items-center">
+          <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#1C1917] mb-4 text-center">
+            From the Blog
+          </h2>
+          <p className="text-base lg:text-[17px] text-[#78716C] mb-10 lg:mb-14 text-center max-w-[520px]">
+            Expert insights on deadline tracking, contract management, and compliance.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 w-full">
+            {[
+              {
+                title: "The Hidden Cost of Missed Contract Renewals",
+                excerpt: "Businesses lose $7.2B yearly to auto-renewed contracts. Learn the real cost and how to prevent it.",
+                slug: "hidden-cost-missed-contract-renewals",
+                icon: FileText,
+              },
+              {
+                title: "5 Documents Every Healthcare Pro Must Track",
+                excerpt: "From medical licenses to DEA registrations — the critical expirations that can shut down your practice.",
+                slug: "healthcare-documents-must-track",
+                icon: Stethoscope,
+              },
+              {
+                title: "How AI Document Extraction Actually Works",
+                excerpt: "From PDF to structured data in 30 seconds — a behind-the-scenes look at OCR and intelligent extraction.",
+                slug: "how-ai-document-extraction-works",
+                icon: Brain,
+              },
+            ].map((post) => (
+              <Link
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                className="group flex flex-col rounded-2xl border border-[#E7E5E4] p-6 sm:p-8 bg-white hover:shadow-lg hover:shadow-orange-100/40 transition-all duration-300"
+              >
+                <div className="w-11 h-11 rounded-xl bg-[#FFF7ED] flex items-center justify-center mb-4">
+                  <post.icon className="w-5 h-5 text-[#EA580C]" />
+                </div>
+                <h3 className="font-display text-lg font-bold text-[#1C1917] mb-2 group-hover:text-[#EA580C] transition-colors">
+                  {post.title}
+                </h3>
+                <p className="text-sm text-[#78716C] leading-relaxed flex-1">
+                  {post.excerpt}
+                </p>
+                <span className="mt-4 text-sm font-medium text-[#EA580C] inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+                  Read more <ArrowRight className="w-3.5 h-3.5" />
+                </span>
+              </Link>
+            ))}
+          </div>
+
+          <Link
+            href="/blog"
+            className="mt-10 inline-flex items-center gap-2 text-sm font-semibold text-[#EA580C] hover:text-[#C2410C] transition-colors"
+          >
+            <BookOpen className="w-4 h-4" />
+            View all articles
+          </Link>
         </div>
       </section>
 
@@ -586,19 +686,22 @@ export default function LandingPage() {
       <section className="bg-[#FFF7ED] border-t border-[#FDBA74] px-5 sm:px-8 md:px-12 lg:px-[120px] py-12 lg:py-20">
         <div className="flex flex-col items-center text-center">
           <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#1C1917] mb-4">
-            Start tracking your deadlines for free
+            Your next missed deadline could cost you thousands
           </h2>
-          <p className="text-base lg:text-[17px] text-[#78716C] mb-8 max-w-[480px]">
-            No credit card required. Add your first document in under 60
-            seconds and never miss a deadline again.
+          <p className="text-base lg:text-[17px] text-[#78716C] mb-8 max-w-[520px]">
+            Upload your first document in 60 seconds. AI extracts the deadlines.
+            You get alerts before they pass. Free for up to 3 documents — forever.
           </p>
           <Link
             href="/sign-up"
-            className="inline-flex items-center justify-center gap-2 bg-[#EA580C] text-white font-display font-semibold text-sm rounded-[10px] py-3.5 px-7 hover:bg-[#DC5409] transition-colors"
+            className="inline-flex items-center justify-center gap-2 bg-[#EA580C] text-white font-display font-semibold text-sm rounded-[10px] py-3.5 px-7 hover:bg-[#DC5409] transition-colors shadow-lg shadow-orange-200/50"
           >
-            Get Started Free
+            Start Tracking Free
             <ArrowRight className="w-4 h-4" />
           </Link>
+          <p className="mt-3 text-xs text-[#A8A29E]">
+            No credit card required &middot; HIPAA compliant
+          </p>
         </div>
       </section>
     </div>

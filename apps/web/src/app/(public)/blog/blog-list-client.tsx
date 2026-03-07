@@ -19,16 +19,27 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").slice(0, 160)
 }
 
+const SLUG_COVERS: Record<string, string> = {
+  "hidden-cost-missed-contract-renewals": "/blog-cover-hidden-cost-missed-renewals.png",
+  "healthcare-documents-must-track": "/blog-cover-healthcare-documents.png",
+  "how-ai-document-extraction-works": "/blog-cover-ai-extraction.png",
+  "contract-auto-renewal-clauses-guide": "/blog-cover-auto-renewal-clauses.png",
+  "ssl-certificate-expiration-prevention": "/blog-cover-ssl-expiration.png",
+  "hipaa-compliance-document-management-guide": "/blog-cover-hipaa-compliance.png",
+}
+
 function BlogCard({ post }: { post: BlogPost }) {
+  const coverSrc = post.coverImageUrl || SLUG_COVERS[post.slug] || null
+
   return (
     <Link
       href={`/blog/${post.slug}`}
       className="group flex flex-col bg-white rounded-2xl border border-orange-100 overflow-hidden hover:shadow-lg hover:shadow-orange-100/50 transition-all duration-300"
     >
-      {post.coverImageUrl ? (
+      {coverSrc ? (
         <div className="aspect-[16/9] overflow-hidden">
           <img
-            src={post.coverImageUrl}
+            src={coverSrc}
             alt={post.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
@@ -78,7 +89,7 @@ export function BlogListClient() {
             Our <span className="text-[#EA580C]">Blog</span>
           </h1>
           <p className="mt-4 text-lg text-gray-500 max-w-2xl mx-auto">
-            Insights, tips, and best practices for contract management and renewal tracking.
+            Expert insights on deadline tracking, contract renewals, HIPAA compliance, and document management.
           </p>
         </div>
       </section>

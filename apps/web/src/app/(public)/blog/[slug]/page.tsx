@@ -19,9 +19,10 @@ async function getPost(slug: string) {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }): Promise<Metadata> {
-  const post = await getPost(params.slug)
+  const { slug } = await params
+  const post = await getPost(slug)
   if (!post) {
     return { title: "Post Not Found" }
   }
@@ -33,7 +34,7 @@ export async function generateMetadata({
   const ogImage = post.ogImage || post.coverImageUrl
 
   return {
-    title: `${title} | Clause Hunter Blog`,
+    title: `${title} | Expiration Reminder AI Blog`,
     description,
     alternates: {
       canonical: post.canonicalUrl || `${siteUrl}/blog/${post.slug}`,
@@ -61,9 +62,10 @@ export async function generateMetadata({
 export default async function BlogPostPage({
   params,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }) {
-  const post = await getPost(params.slug)
+  const { slug } = await params
+  const post = await getPost(slug)
   if (!post) notFound()
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://expirationreminderai.com"
@@ -86,7 +88,7 @@ export default async function BlogPostPage({
       : undefined,
     publisher: {
       "@type": "Organization",
-      name: "Clause Hunter",
+      name: "Expiration Reminder AI",
       url: siteUrl,
     },
   }

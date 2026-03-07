@@ -14,6 +14,7 @@ export function Footer() {
         <span className="text-[13px] text-[#7A7A7A]">&copy; 2026</span>
       </div>
       <div className="flex items-center gap-6">
+        <Link href="/blog" className="text-[13px] text-[#7A7A7A] hover:text-[#1C1917] transition-colors">Blog</Link>
         <Link href="/privacy" className="text-[13px] text-[#7A7A7A] hover:text-[#1C1917] transition-colors">Privacy</Link>
         <Link href="/terms" className="text-[13px] text-[#7A7A7A] hover:text-[#1C1917] transition-colors">Terms</Link>
         <Link href="/contact" className="text-[13px] text-[#7A7A7A] hover:text-[#1C1917] transition-colors">Contact</Link>
