@@ -5,12 +5,11 @@ import { useAuth } from "@/lib/auth-context"
 
 function getInitials(name: string | undefined | null): string {
   if (!name) return "U"
-  return name
-    .split(" ")
-    .map((p) => p[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2)
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+  }
+  return parts[0].slice(0, 2).toUpperCase()
 }
 
 interface UserAvatarProps {

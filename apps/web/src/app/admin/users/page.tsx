@@ -11,6 +11,7 @@ import {
   Eye,
   Pencil,
   Loader2,
+  LogIn,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -22,7 +23,9 @@ import {
   EditUserModal,
   DeleteUserModal,
 } from "./user-modals"
-import { useUsers, useUserCount, type ApiUser } from "@/lib/hooks/use-users"
+import { useUsers, useUserCount, useImpersonateUser, type ApiUser } from "@/lib/hooks/use-users"
+import { useAuth } from "@/lib/auth-context"
+import { useRouter } from "next/navigation"
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -87,9 +90,32 @@ export default function AdminUsersPage() {
     return () => clearTimeout(timer)
   }, [searchInput])
 
+  const router = useRouter()
+  const { loginWithToken } = useAuth()
+
   // API data
   const { data: users = [], isLoading, error } = useUsers(debouncedSearch || undefined)
   const { data: totalCount } = useUserCount()
+  const impersonate = useImpersonateUser()
+
+  const handleImpersonate = useCallback(async (user: ApiUser) => {
+    try {
+      const result = await impersonate.mutateAsync(user.id)
+      loginWithToken(result.access_token, {
+        id: result.user.id,
+        name: result.user.name,
+        email: result.user.email,
+        role: result.user.role,
+        status: result.user.status,
+        company: result.user.company,
+        avatar: result.user.avatar ?? null,
+        createdAt: result.user.createdAt,
+      })
+      router.push("/dashboard")
+    } catch {
+      alert("Failed to impersonate user")
+    }
+  }, [impersonate, loginWithToken, router])
 
   const allSelected = users.length > 0 && selected.length === users.length
   const someSelected = selected.length > 0
@@ -253,6 +279,7 @@ export default function AdminUsersPage() {
                           <div className="flex items-center gap-3">
                             <UserAvatar
                               name={user.name}
+                              image={user.avatar ?? undefined}
                               size={36}
                               fallbackClassName="bg-[#4F46E5]"
                               className="shrink-0"
@@ -288,6 +315,15 @@ export default function AdminUsersPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 px-2.5 text-gray-500 hover:text-emerald-600"
+                              title="Login as this user"
+                              onClick={() => handleImpersonate(user)}
+                            >
+                              <LogIn className="h-4 w-4" />
+                            </Button>
                             <Button
                               variant="ghost"
                               size="sm"

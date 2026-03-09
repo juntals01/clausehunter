@@ -11,6 +11,7 @@ export interface ApiUser {
   role: string
   status: string
   company: string | null
+  avatar: string | null
   lastActiveAt: string | null
   createdAt: string
   updatedAt: string
@@ -98,6 +99,16 @@ export function useDeleteUser() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-users"] })
+    },
+  })
+}
+
+/** POST /users/:id/impersonate (admin) */
+export function useImpersonateUser() {
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data } = await api.post(`/users/${id}/impersonate`)
+      return data as { access_token: string; user: ApiUser }
     },
   })
 }
