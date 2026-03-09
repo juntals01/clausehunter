@@ -2,6 +2,7 @@ import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
 import { User } from './entities/user.entity';
 import { Contract } from './entities/contract.entity';
+import { ContractItem } from './entities/contract-item.entity';
 import { ContractText } from './entities/contract-text.entity';
 import { Feedback } from './entities/feedback.entity';
 import { Notification } from './entities/notification.entity';
@@ -21,7 +22,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DATABASE_NAME || 'expirationreminderai',
     synchronize: false,
     logging: process.env.NODE_ENV === 'development',
-    entities: [User, Contract, ContractText, Feedback, Notification, Subscription, BlogPost, FeatureRequest, FeatureRequestVote],
+    entities: [User, Contract, ContractItem, ContractText, Feedback, Notification, Subscription, BlogPost, FeatureRequest, FeatureRequestVote],
     migrations: ['src/migrations/*.ts'],
     subscribers: [],
 });

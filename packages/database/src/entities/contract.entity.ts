@@ -5,10 +5,12 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     OneToOne,
+    OneToMany,
     ManyToOne,
     JoinColumn,
 } from 'typeorm';
 import { ContractText } from './contract-text.entity';
+import { ContractItem } from './contract-item.entity';
 import { User } from './user.entity';
 
 @Entity('contracts')
@@ -69,4 +71,7 @@ export class Contract {
         cascade: true,
     })
     contractText?: ContractText;
+
+    @OneToMany(() => ContractItem, (item) => item.contract, { cascade: true })
+    items?: ContractItem[];
 }

@@ -75,6 +75,14 @@ export interface KeyDate {
     source_text: string;
 }
 
+export interface ContractItemExtraction {
+    name: string;
+    description: string | null;
+    expiry_date: string | null; // YYYY-MM-DD
+    notice_days: number | null;
+    source_text: string | null;
+}
+
 export interface ContractExtraction {
     document_title: string | null;
     vendor_name: string | null;
@@ -86,6 +94,7 @@ export interface ContractExtraction {
     renewal_clauses: RenewalClause[];
     penalty_clauses: PenaltyClause[];
     key_dates: KeyDate[];
+    items: ContractItemExtraction[];
     summary: string | null;
 }
 
@@ -148,6 +157,15 @@ Expected JSON shape:
       "source_text": "string — the sentence where this date appears"
     }
   ],
+  "items": [
+    {
+      "name": "string — name or identifier of the individual item (e.g. device name, license name, asset ID)",
+      "description": "string | null — brief description or context for this item",
+      "expiry_date": "YYYY-MM-DD | null — item-specific expiration, due, or next-inspection date",
+      "notice_days": "integer | null — days of notice before this item's expiry",
+      "source_text": "string | null — the line or sentence where this item appears in the document"
+    }
+  ],
   "summary": "string — 1-2 sentence plain-English summary of the document's expiration/deadline situation"
 }
 
@@ -184,6 +202,26 @@ Documents often contain many dates. You MUST follow this priority to select the 
 8. penalty_clauses: Early termination fees, penalties, or late fees with amounts.
 9. key_dates: ALL dates found in the document — include issue dates, start dates, end dates, payment dates, etc. Label each clearly.
 10. summary: Plain-English summary of the expiration/renewal situation.
+
+=== CRITICAL: How to extract items ===
+
+Many documents contain a LIST of individual assets, devices, licenses, line items, or covered properties — each with its own identity or date. You MUST extract these into the "items" array.
+
+When to extract items:
+- Inspection reports: each inspected device, asset, or piece of equipment is an item. If the document states a standard inspection interval (e.g., annual), compute each item's next due date by adding that interval to the inspection date.
+- Insurance policies: each covered property, vehicle, or person is an item.
+- License bundles: each individual license or seat is an item.
+- Checklists with deadlines: each task with its own due date is an item.
+- Multi-line invoices: each line item with a service period end date is an item.
+- Asset registries: each asset with an expiry, warranty end, or maintenance due date is an item.
+
+When NOT to extract items:
+- If the document is a single-item contract (e.g., one lease, one license), return an empty items array — the main document fields already capture the data.
+- Do not create items for dates that belong to the overall agreement (those go in key_dates).
+
+For each item, always include a clear "name" and the "source_text" showing where it was found.
+
+IMPORTANT: Extract at most 50 items. If the document has more than 50 items, extract the 50 most important ones (prioritize items with expiry dates, issues, or failures).
 
 Important:
 - Return ONLY the JSON object. No markdown, no commentary.

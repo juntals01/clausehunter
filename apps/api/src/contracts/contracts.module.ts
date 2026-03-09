@@ -4,15 +4,17 @@ import { BullModule } from '@nestjs/bullmq';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { ContractsController } from './contracts.controller';
+import { ContractItemsController } from './contract-items.controller';
 import { AdminContractsController } from './admin-contracts.controller';
 import { ContractsService } from './contracts.service';
-import { Contract, ContractText, User } from '@expirationreminderai/database';
+import { ContractItemsService } from './contract-items.service';
+import { Contract, ContractItem, ContractText, User } from '@expirationreminderai/database';
 import { StorageModule } from '../storage/storage.module';
 import { BillingModule } from '../billing/billing.module';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Contract, ContractText, User]),
+        TypeOrmModule.forFeature([Contract, ContractItem, ContractText, User]),
         BullModule.registerQueue(
             { name: 'contract-ocr' },
             { name: 'contract-extract' },
@@ -36,7 +38,7 @@ import { BillingModule } from '../billing/billing.module';
         StorageModule,
         BillingModule,
     ],
-    controllers: [ContractsController, AdminContractsController],
-    providers: [ContractsService],
+    controllers: [ContractsController, ContractItemsController, AdminContractsController],
+    providers: [ContractsService, ContractItemsService],
 })
 export class ContractsModule { }

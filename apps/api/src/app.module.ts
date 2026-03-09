@@ -11,7 +11,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { AdminEmailModule } from './admin-email/admin-email.module';
 import { ContactModule } from './contact/contact.module';
 import { BillingModule } from './billing/billing.module';
-import { User, Contract, ContractText, Feedback, Notification, Subscription, BlogPost, FeatureRequest, FeatureRequestVote } from '@expirationreminderai/database';
+import { User, Contract, ContractItem, ContractText, Feedback, Notification, Subscription, BlogPost, FeatureRequest, FeatureRequestVote } from '@expirationreminderai/database';
 import { BlogModule } from './blog/blog.module';
 import { FeatureRequestsModule } from './feature-requests/feature-requests.module';
 
@@ -30,7 +30,7 @@ import { FeatureRequestsModule } from './feature-requests/feature-requests.modul
                 username: config.get('DATABASE_USER', 'expirationreminderai'),
                 password: config.get('DATABASE_PASSWORD', 'expirationreminderai'),
                 database: config.get('DATABASE_NAME', 'expirationreminderai'),
-                entities: [User, Contract, ContractText, Feedback, Notification, Subscription, BlogPost, FeatureRequest, FeatureRequestVote],
+                entities: [User, Contract, ContractItem, ContractText, Feedback, Notification, Subscription, BlogPost, FeatureRequest, FeatureRequestVote],
                 synchronize: false,
                 logging: config.get('NODE_ENV') === 'development',
             }),

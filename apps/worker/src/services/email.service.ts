@@ -212,6 +212,25 @@ export class EmailService implements OnModuleInit {
         `);
     }
 
+    generateItemAlertEmail(itemRowsHtml: string, count: number): string {
+        return this.baseTemplate(`Item Expiry Alert: ${count} item(s)`, `
+        <p>The following items in your tracked documents are expiring soon or overdue:</p>
+        <table style="width:100%;border-collapse:collapse;margin-top:16px;font-size:13px">
+          <thead>
+            <tr style="background:#f9fafb">
+              <th style="text-align:left;padding:8px 12px;border-bottom:2px solid #e5e7eb;font-weight:600;color:#374151">Item</th>
+              <th style="text-align:left;padding:8px 12px;border-bottom:2px solid #e5e7eb;font-weight:600;color:#374151">Document</th>
+              <th style="text-align:left;padding:8px 12px;border-bottom:2px solid #e5e7eb;font-weight:600;color:#374151">Due Date</th>
+              <th style="text-align:left;padding:8px 12px;border-bottom:2px solid #e5e7eb;font-weight:600;color:#374151">Status</th>
+            </tr>
+          </thead>
+          <tbody>${itemRowsHtml}</tbody>
+        </table>
+        <p style="margin-top:16px;">Review these items and take action before the deadlines pass.</p>
+        <a href="${this.webUrl}/dashboard/contracts" class="btn">View Documents</a>
+        `);
+    }
+
     generateBroadcastEmail(subject: string, body: string): string {
         return this.baseTemplate(subject, `
         <div>${body}</div>

@@ -14,6 +14,7 @@ import {
   FileCheck,
   ShieldCheck,
   FileText,
+  Package,
   Stethoscope,
   HardHat,
   Scale,
@@ -121,12 +122,12 @@ const features = [
     iconBg: "bg-[#EFF6FF]",
   },
   {
-    title: "Confidence + Clause Preview",
+    title: "Item-Level Tracking & Alerts",
     description:
-      "See AI confidence scores and highlighted clause excerpts so you can verify every extraction result.",
-    icon: FileCheck,
-    iconColor: "text-[#EF4444]",
-    iconBg: "bg-[#FEE2E2]",
+      "AI extracts individual items within documents — each device, license, or asset gets its own expiry date and email reminder.",
+    icon: Package,
+    iconColor: "text-[#8B5CF6]",
+    iconBg: "bg-[#F5F3FF]",
   },
 ]
 

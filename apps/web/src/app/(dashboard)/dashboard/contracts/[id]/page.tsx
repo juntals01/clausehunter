@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import {
+  ChevronLeft,
   ChevronRight,
   Download,
   Eye,
@@ -17,12 +18,22 @@ import {
   Loader2,
   AlertCircle,
   AlertTriangle,
+  Bell,
   Pencil,
   Check,
   X,
+  Plus,
+  Package,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useContract, useDeleteContract, useReprocessContract, useUpdateContract } from "@/lib/hooks/use-contracts"
+import {
+  useContractItems,
+  useCreateContractItem,
+  useUpdateContractItem,
+  useDeleteContractItem,
+  type ContractItem,
+} from "@/lib/hooks/use-contract-items"
 import { DOCUMENT_CATEGORIES, type DocumentCategory } from "@expirationreminderai/shared"
 import { UserDropdown } from "@/components/user-dropdown"
 import { NotificationDropdown } from "@/components/notification-dropdown"
@@ -63,6 +74,13 @@ function computeUrgency(
     daysLeft,
     cancelBy: formatDate(cancelByDate.toISOString()),
   }
+}
+
+function computeItemDaysLeft(expiryDate: string | null): number | null {
+  if (!expiryDate) return null
+  const expiry = new Date(expiryDate)
+  const now = new Date()
+  return Math.ceil((expiry.getTime() - now.getTime()) / 86_400_000)
 }
 
 // ─── Status Badge ─────────────────────────────────────────────────────
@@ -272,6 +290,11 @@ export default function ContractDetailPage() {
               urgency={urgency}
               onUpdate={updateContract}
             />
+
+            {/* Items Section */}
+            {contract.status === "ready" && (
+              <ContractItemsSection contractId={contract.id} />
+            )}
 
             {/* AI Extraction Sections (hidden for manual entries) */}
             {!isManualEntry && contract.extractionData?.summary && (
@@ -690,6 +713,475 @@ function DetailRow({
     <div className="flex items-center justify-between py-2 border-b border-[#E7E5E4] last:border-0">
       <span className="text-sm text-[#78716C]">{label}</span>
       <span className="text-sm font-medium text-[#1C1917]">{value}</span>
+    </div>
+  )
+}
+
+// ─── Contract Items Section ──────────────────────────────────────────
+
+const ITEMS_PER_PAGE = 10
+
+function ContractItemsSection({ contractId }: { contractId: string }) {
+  const { data: items = [], isLoading } = useContractItems(contractId)
+  const createItem = useCreateContractItem()
+  const updateItem = useUpdateContractItem()
+  const deleteItem = useDeleteContractItem()
+
+  const [showAdd, setShowAdd] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [page, setPage] = useState(0)
+
+  const [formName, setFormName] = useState("")
+  const [formDescription, setFormDescription] = useState("")
+  const [formExpiryDate, setFormExpiryDate] = useState("")
+  const [formNoticeDays, setFormNoticeDays] = useState("")
+  const [formStatus, setFormStatus] = useState("active")
+
+  const totalPages = Math.max(1, Math.ceil(items.length / ITEMS_PER_PAGE))
+  const pagedItems = items.slice(page * ITEMS_PER_PAGE, (page + 1) * ITEMS_PER_PAGE)
+
+  const resetForm = () => {
+    setFormName("")
+    setFormDescription("")
+    setFormExpiryDate("")
+    setFormNoticeDays("")
+    setFormStatus("active")
+  }
+
+  const startEditing = (item: ContractItem) => {
+    setEditingId(item.id)
+    setFormName(item.name)
+    setFormDescription(item.description ?? "")
+    setFormExpiryDate(item.expiryDate ? item.expiryDate.slice(0, 10) : "")
+    setFormNoticeDays(item.noticeDays != null ? String(item.noticeDays) : "")
+    setFormStatus(item.status)
+    setShowAdd(false)
+  }
+
+  const handleCreate = async () => {
+    if (!formName.trim()) return
+    try {
+      await createItem.mutateAsync({
+        contractId,
+        name: formName.trim(),
+        description: formDescription.trim() || undefined,
+        expiryDate: formExpiryDate || undefined,
+        noticeDays: formNoticeDays ? Number(formNoticeDays) : undefined,
+      })
+      resetForm()
+      setShowAdd(false)
+    } catch {
+      alert("Failed to add item. Please check the values and try again.")
+    }
+  }
+
+  const handleUpdate = async () => {
+    if (!editingId || !formName.trim()) return
+    try {
+      await updateItem.mutateAsync({
+        contractId,
+        itemId: editingId,
+        name: formName.trim(),
+        description: formDescription.trim() || undefined,
+        expiryDate: formExpiryDate || undefined,
+        noticeDays: formNoticeDays ? Number(formNoticeDays) : undefined,
+        status: formStatus,
+      })
+      setEditingId(null)
+      resetForm()
+    } catch {
+      alert("Failed to update item. Please check the values and try again.")
+    }
+  }
+
+  const handleDelete = async (itemId: string) => {
+    if (!confirm("Delete this item?")) return
+    await deleteItem.mutateAsync({ contractId, itemId })
+  }
+
+  const getItemUrgency = (status: string, expiryDate: string | null): { label: string; color: string; bg: string; dot: string } => {
+    if (status === "resolved") return { label: "Resolved", color: "text-stone-600", bg: "bg-stone-100", dot: "bg-stone-400" }
+
+    const daysLeft = computeItemDaysLeft(expiryDate)
+    if (daysLeft !== null && daysLeft <= 0) return { label: "Overdue", color: "text-red-700", bg: "bg-red-50", dot: "bg-red-500" }
+    if (status === "expired") return { label: "Expired", color: "text-red-600", bg: "bg-red-50", dot: "bg-red-500" }
+    if (daysLeft !== null && daysLeft <= 7) return { label: "Critical", color: "text-red-600", bg: "bg-red-50", dot: "bg-red-500" }
+    if (daysLeft !== null && daysLeft <= 30) return { label: "Expiring Soon", color: "text-amber-700", bg: "bg-amber-50", dot: "bg-amber-500" }
+    if (daysLeft !== null && daysLeft <= 90) return { label: "Upcoming", color: "text-blue-700", bg: "bg-blue-50", dot: "bg-blue-500" }
+    if (expiryDate) return { label: "On Track", color: "text-green-700", bg: "bg-green-50", dot: "bg-green-500" }
+    return { label: "No Date", color: "text-stone-500", bg: "bg-stone-50", dot: "bg-stone-300" }
+  }
+
+  const statusBadge = (status: string, expiryDate: string | null) => {
+    const u = getItemUrgency(status, expiryDate)
+    return (
+      <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold", u.color, u.bg)}>
+        <span className={cn("h-1.5 w-1.5 rounded-full", u.dot)} />
+        {u.label}
+      </span>
+    )
+  }
+
+  const overdue = items.filter((i) => i.status !== "resolved" && computeItemDaysLeft(i.expiryDate) !== null && computeItemDaysLeft(i.expiryDate)! <= 0).length
+  const expiringSoon = items.filter((i) => { const d = computeItemDaysLeft(i.expiryDate); return i.status !== "resolved" && d !== null && d > 0 && d <= 30 }).length
+  const onTrack = items.filter((i) => { const d = computeItemDaysLeft(i.expiryDate); return i.status !== "resolved" && d !== null && d > 30 }).length
+  const noDate = items.filter((i) => i.expiryDate === null && i.status !== "resolved").length
+
+  return (
+    <div className="rounded-2xl border border-[#E7E5E4] bg-white p-6">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <h2 className="font-display text-base font-semibold text-[#1C1917] flex items-center gap-2">
+            <Package className="h-4 w-4 text-[#EA580C]" />
+            Items
+            {items.length > 0 && (
+              <span className="inline-flex items-center rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-600">
+                {items.length}
+              </span>
+            )}
+          </h2>
+          {items.some((i) => i.expiryDate) && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#78716C]" title="Email alerts are sent when items are expiring">
+              <Bell className="h-3 w-3" />
+              Alerts On
+            </span>
+          )}
+        </div>
+        <button
+          onClick={() => { resetForm(); setEditingId(null); setShowAdd(true) }}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[#E7E5E4] px-3 py-1.5 text-xs font-medium text-[#78716C] hover:bg-[#FAFAF9] hover:text-[#EA580C] transition-colors"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          Add Item
+        </button>
+      </div>
+
+      {/* Status summary */}
+      {items.length > 0 && (
+        <div className="flex flex-wrap gap-3 mb-4">
+          {overdue > 0 && (
+            <div className="flex items-center gap-2 rounded-lg bg-red-50 border border-red-100 px-3 py-1.5">
+              <span className="h-2 w-2 rounded-full bg-red-500" />
+              <span className="text-xs font-semibold text-red-700">{overdue} Overdue</span>
+            </div>
+          )}
+          {expiringSoon > 0 && (
+            <div className="flex items-center gap-2 rounded-lg bg-amber-50 border border-amber-100 px-3 py-1.5">
+              <span className="h-2 w-2 rounded-full bg-amber-500" />
+              <span className="text-xs font-semibold text-amber-700">{expiringSoon} Expiring Soon</span>
+            </div>
+          )}
+          {onTrack > 0 && (
+            <div className="flex items-center gap-2 rounded-lg bg-green-50 border border-green-100 px-3 py-1.5">
+              <span className="h-2 w-2 rounded-full bg-green-500" />
+              <span className="text-xs font-semibold text-green-700">{onTrack} On Track</span>
+            </div>
+          )}
+          {noDate > 0 && (
+            <div className="flex items-center gap-2 rounded-lg bg-stone-50 border border-stone-200 px-3 py-1.5">
+              <span className="h-2 w-2 rounded-full bg-stone-300" />
+              <span className="text-xs font-semibold text-stone-500">{noDate} No Date</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Add form */}
+      {showAdd && (
+        <ItemForm
+          formName={formName}
+          setFormName={setFormName}
+          formDescription={formDescription}
+          setFormDescription={setFormDescription}
+          formExpiryDate={formExpiryDate}
+          setFormExpiryDate={setFormExpiryDate}
+          formNoticeDays={formNoticeDays}
+          setFormNoticeDays={setFormNoticeDays}
+          isPending={createItem.isPending}
+          onSave={handleCreate}
+          onCancel={() => { setShowAdd(false); resetForm() }}
+          saveLabel="Add"
+        />
+      )}
+
+      {isLoading ? (
+        <div className="flex items-center gap-2 text-sm text-[#78716C] py-4">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading items...
+        </div>
+      ) : items.length === 0 && !showAdd ? (
+        <p className="text-sm text-[#78716C] py-2">
+          No items extracted or added yet.
+        </p>
+      ) : (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-[#E7E5E4]">
+                  <th className="text-left text-[11px] font-medium text-[#78716C] uppercase tracking-wider pb-3 pr-4">Item</th>
+                  <th className="text-left text-[11px] font-medium text-[#78716C] uppercase tracking-wider pb-3 px-4 whitespace-nowrap">Due Date</th>
+                  <th className="text-left text-[11px] font-medium text-[#78716C] uppercase tracking-wider pb-3 px-4">Status</th>
+                  <th className="text-left text-[11px] font-medium text-[#78716C] uppercase tracking-wider pb-3 px-4 whitespace-nowrap">Days Left</th>
+                  <th className="pb-3 px-1 w-16"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#E7E5E4]/50">
+                {pagedItems.map((item) => {
+                  if (editingId === item.id) {
+                    return (
+                      <tr key={item.id}>
+                        <td colSpan={5} className="py-3">
+                          <div className="rounded-xl border border-[#EA580C]/30 bg-orange-50/30 p-4">
+                            <ItemForm
+                              formName={formName}
+                              setFormName={setFormName}
+                              formDescription={formDescription}
+                              setFormDescription={setFormDescription}
+                              formExpiryDate={formExpiryDate}
+                              setFormExpiryDate={setFormExpiryDate}
+                              formNoticeDays={formNoticeDays}
+                              setFormNoticeDays={setFormNoticeDays}
+                              formStatus={formStatus}
+                              setFormStatus={setFormStatus}
+                              showStatus
+                              isPending={updateItem.isPending}
+                              onSave={handleUpdate}
+                              onCancel={() => { setEditingId(null); resetForm() }}
+                              saveLabel="Save"
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  }
+
+                  const daysLeft = computeItemDaysLeft(item.expiryDate)
+
+                  return (
+                    <tr key={item.id} className="group hover:bg-[#FAFAF9] transition-colors">
+                      <td className="py-3.5 pr-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-50">
+                            <Package className="h-4 w-4 text-[#EA580C]" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-[#1C1917] truncate">{item.name}</p>
+                            {item.description && (
+                              <p className="text-xs text-[#A8A29E] truncate mt-0.5">{item.description}</p>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        {item.expiryDate ? (
+                          <span className="text-sm text-[#1C1917]">{formatDate(item.expiryDate)}</span>
+                        ) : (
+                          <span className="text-sm text-[#A8A29E]">—</span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        {statusBadge(item.status, item.expiryDate)}
+                      </td>
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        {daysLeft !== null ? (
+                          <span className={cn(
+                            "text-sm font-medium",
+                            daysLeft <= 0 ? "text-red-600" : daysLeft <= 30 ? "text-amber-600" : "text-green-600"
+                          )}>
+                            {daysLeft <= 0 ? "Overdue" : `${daysLeft}d`}
+                          </span>
+                        ) : (
+                          <span className="text-sm text-[#A8A29E]">—</span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-1">
+                        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => startEditing(item)}
+                            className="rounded-md p-1.5 text-[#78716C] hover:text-[#EA580C] hover:bg-orange-50 transition-colors"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item.id)}
+                            disabled={deleteItem.isPending}
+                            className="rounded-md p-1.5 text-[#78716C] hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-3 mt-3 border-t border-[#E7E5E4]">
+              <p className="text-xs text-[#78716C]">
+                {page * ITEMS_PER_PAGE + 1}–{Math.min((page + 1) * ITEMS_PER_PAGE, items.length)} of {items.length}
+              </p>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                  className="rounded-md p-1.5 text-[#78716C] hover:bg-[#FAFAF9] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPage(i)}
+                    className={cn(
+                      "h-7 w-7 rounded-md text-xs font-medium transition-colors",
+                      page === i
+                        ? "bg-[#EA580C] text-white"
+                        : "text-[#78716C] hover:bg-[#FAFAF9]"
+                    )}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                  disabled={page >= totalPages - 1}
+                  className="rounded-md p-1.5 text-[#78716C] hover:bg-[#FAFAF9] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
+// ─── Item Form (shared between Add and Edit) ─────────────────────────
+
+function ItemForm({
+  formName,
+  setFormName,
+  formDescription,
+  setFormDescription,
+  formExpiryDate,
+  setFormExpiryDate,
+  formNoticeDays,
+  setFormNoticeDays,
+  formStatus,
+  setFormStatus,
+  showStatus = false,
+  isPending,
+  onSave,
+  onCancel,
+  saveLabel,
+}: {
+  formName: string
+  setFormName: (v: string) => void
+  formDescription: string
+  setFormDescription: (v: string) => void
+  formExpiryDate: string
+  setFormExpiryDate: (v: string) => void
+  formNoticeDays: string
+  setFormNoticeDays: (v: string) => void
+  formStatus?: string
+  setFormStatus?: (v: string) => void
+  showStatus?: boolean
+  isPending: boolean
+  onSave: () => void
+  onCancel: () => void
+  saveLabel: string
+}) {
+  return (
+    <div className="space-y-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-[#78716C]">Name *</label>
+          <input
+            type="text"
+            value={formName}
+            onChange={(e) => setFormName(e.target.value)}
+            placeholder="e.g. Blood Pressure Monitor"
+            className="rounded-lg border border-[#E7E5E4] bg-white px-3 py-2 text-sm text-[#1C1917] placeholder:text-[#A8A29E] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-[#78716C]">Description</label>
+          <input
+            type="text"
+            value={formDescription}
+            onChange={(e) => setFormDescription(e.target.value)}
+            placeholder="Optional details"
+            className="rounded-lg border border-[#E7E5E4] bg-white px-3 py-2 text-sm text-[#1C1917] placeholder:text-[#A8A29E] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-[#78716C]">Expiry Date</label>
+          <input
+            type="date"
+            value={formExpiryDate}
+            onChange={(e) => setFormExpiryDate(e.target.value)}
+            className="rounded-lg border border-[#E7E5E4] bg-white px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-[#78716C]">Notice (days)</label>
+          <input
+            type="number"
+            min="0"
+            value={formNoticeDays}
+            onChange={(e) => setFormNoticeDays(e.target.value)}
+            placeholder="e.g. 30"
+            className="rounded-lg border border-[#E7E5E4] bg-white px-3 py-2 text-sm text-[#1C1917] placeholder:text-[#A8A29E] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+          />
+        </div>
+      </div>
+      {showStatus && setFormStatus && (
+        <div className="flex items-center gap-2">
+          <label className="text-xs text-[#78716C]">Status:</label>
+          {["active", "expired", "resolved"].map((s) => (
+            <button
+              key={s}
+              onClick={() => setFormStatus(s)}
+              className={cn(
+                "rounded-lg px-3 py-1 text-xs font-medium transition-colors border capitalize",
+                formStatus === s
+                  ? "border-[#EA580C] bg-[#FFF7ED] text-[#EA580C]"
+                  : "border-[#E7E5E4] bg-white text-[#78716C] hover:bg-[#FAFAF9]"
+              )}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="flex items-center gap-2 pt-1">
+        <button
+          onClick={onCancel}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[#E7E5E4] px-3 py-1.5 text-xs font-medium text-[#78716C] hover:bg-[#FAFAF9] transition-colors"
+        >
+          <X className="h-3.5 w-3.5" />
+          Cancel
+        </button>
+        <button
+          onClick={onSave}
+          disabled={isPending || !formName.trim()}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[#EA580C] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#DC4A04] transition-colors disabled:opacity-50"
+        >
+          {isPending ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Check className="h-3.5 w-3.5" />
+          )}
+          {saveLabel}
+        </button>
+      </div>
     </div>
   )
 }

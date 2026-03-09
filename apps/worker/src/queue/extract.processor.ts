@@ -4,7 +4,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Repository } from 'typeorm';
 import { Job, Queue } from 'bullmq';
 import { ConfigService } from '@nestjs/config';
-import { Contract, ContractText, Notification, User } from '@expirationreminderai/database';
+import { Contract, ContractItem, ContractText, Notification, User } from '@expirationreminderai/database';
 import { KimiService } from '../services/kimi.service';
 import { EmailService } from '../services/email.service';
 
@@ -18,6 +18,8 @@ export class ExtractProcessor extends WorkerHost {
         private config: ConfigService,
         @InjectRepository(Contract)
         private contractRepository: Repository<Contract>,
+        @InjectRepository(ContractItem)
+        private contractItemRepository: Repository<ContractItem>,
         @InjectRepository(ContractText)
         private contractTextRepository: Repository<ContractText>,
         @InjectRepository(Notification)
@@ -93,6 +95,40 @@ export class ExtractProcessor extends WorkerHost {
                 extractionData: extraction as any,
                 status: 'ready',
             });
+
+            // Save extracted items
+            if (Array.isArray(extraction.items) && extraction.items.length > 0) {
+                await this.contractItemRepository.delete({ contractId });
+
+                const itemEntities = extraction.items
+                    .filter((item: any) => item.name)
+                    .map((item: any) => {
+                        let expiryDate: Date | null = null;
+                        if (item.expiry_date) {
+                            const parsed = new Date(item.expiry_date);
+                            if (!isNaN(parsed.getTime())) expiryDate = parsed;
+                        }
+                        let noticeDaysItem: number | null = null;
+                        if (item.notice_days != null) {
+                            const parsed = Number(item.notice_days);
+                            if (!isNaN(parsed) && parsed >= 0) noticeDaysItem = parsed;
+                        }
+
+                        return this.contractItemRepository.create({
+                            contractId,
+                            name: item.name,
+                            description: item.description || null,
+                            expiryDate,
+                            noticeDays: noticeDaysItem,
+                            sourceText: item.source_text || null,
+                        });
+                    });
+
+                if (itemEntities.length > 0) {
+                    await this.contractItemRepository.save(itemEntities);
+                    console.log(`[BullMQ EXTRACT] Saved ${itemEntities.length} items for contract ${contractId}`);
+                }
+            }
 
             console.log(`[BullMQ EXTRACT] Contract ${contractId} is now ready`);
 

@@ -58,6 +58,7 @@ export class KimiService implements OnModuleInit {
                         },
                     ],
                     temperature: 0.1,
+                    max_tokens: 16384,
                 },
                 {
                     headers: {
@@ -80,37 +81,84 @@ export class KimiService implements OnModuleInit {
     }
 
     private parseResponse(content: string): ContractExtraction {
-        try {
-            // Strip markdown code blocks if present
-            const jsonStr = content
-                .replace(/```json\n?/g, '')
-                .replace(/\n?```/g, '')
-                .trim();
-            const parsed = JSON.parse(jsonStr);
+        const jsonStr = content
+            .replace(/```json\n?/g, '')
+            .replace(/\n?```/g, '')
+            .trim();
 
-            // Ensure arrays exist even if AI omits them
-            return {
-                document_title: parsed.document_title ?? null,
-                vendor_name: parsed.vendor_name ?? null,
-                contract_end_date: parsed.contract_end_date ?? null,
-                notice_period_days: parsed.notice_period_days ?? null,
-                auto_renews: parsed.auto_renews ?? null,
-                renewal_term_months: parsed.renewal_term_months ?? null,
-                cancellation_deadline: parsed.cancellation_deadline ?? null,
-                renewal_clauses: Array.isArray(parsed.renewal_clauses)
-                    ? parsed.renewal_clauses
-                    : [],
-                penalty_clauses: Array.isArray(parsed.penalty_clauses)
-                    ? parsed.penalty_clauses
-                    : [],
-                key_dates: Array.isArray(parsed.key_dates)
-                    ? parsed.key_dates
-                    : [],
-                summary: parsed.summary ?? null,
-            };
-        } catch (e) {
-            console.warn('[AI Extraction] Failed to parse JSON response:', content);
-            throw new Error('Invalid JSON response from Gemini');
+        let parsed: any;
+        try {
+            parsed = JSON.parse(jsonStr);
+        } catch {
+            // Attempt to recover truncated JSON by closing open structures
+            parsed = this.tryRecoverTruncatedJson(jsonStr);
+            if (!parsed) {
+                console.warn('[AI Extraction] Failed to parse JSON response (truncated?):', jsonStr.slice(-200));
+                throw new Error('Invalid JSON response from Gemini');
+            }
+            console.warn('[AI Extraction] Recovered truncated JSON response');
+        }
+
+        return {
+            document_title: parsed.document_title ?? null,
+            vendor_name: parsed.vendor_name ?? null,
+            contract_end_date: parsed.contract_end_date ?? null,
+            notice_period_days: parsed.notice_period_days ?? null,
+            auto_renews: parsed.auto_renews ?? null,
+            renewal_term_months: parsed.renewal_term_months ?? null,
+            cancellation_deadline: parsed.cancellation_deadline ?? null,
+            renewal_clauses: Array.isArray(parsed.renewal_clauses)
+                ? parsed.renewal_clauses
+                : [],
+            penalty_clauses: Array.isArray(parsed.penalty_clauses)
+                ? parsed.penalty_clauses
+                : [],
+            key_dates: Array.isArray(parsed.key_dates)
+                ? parsed.key_dates
+                : [],
+            items: Array.isArray(parsed.items)
+                ? parsed.items
+                : [],
+            summary: parsed.summary ?? null,
+        };
+    }
+
+    /**
+     * When the AI response is truncated mid-JSON, try to salvage it
+     * by removing the incomplete trailing element and closing brackets.
+     */
+    private tryRecoverTruncatedJson(jsonStr: string): any | null {
+        // Find the last complete object/array boundary
+        let str = jsonStr;
+
+        // Remove trailing incomplete string value
+        str = str.replace(/,\s*\{[^}]*$/, '');  // remove last incomplete object in array
+        str = str.replace(/,\s*"[^"]*$/, '');     // remove trailing incomplete key/value
+
+        // Count open brackets and close them
+        const opens = (str.match(/[\[{]/g) || []).length;
+        const closes = (str.match(/[\]}]/g) || []).length;
+        const needed = opens - closes;
+
+        if (needed <= 0 || needed > 10) return null;
+
+        // Determine closing order from the last open brackets
+        const stack: string[] = [];
+        for (const ch of str) {
+            if (ch === '{' || ch === '[') stack.push(ch);
+            else if (ch === '}' || ch === ']') stack.pop();
+        }
+
+        let suffix = '';
+        while (stack.length > 0) {
+            const open = stack.pop()!;
+            suffix += open === '{' ? '}' : ']';
+        }
+
+        try {
+            return JSON.parse(str + suffix);
+        } catch {
+            return null;
         }
     }
 }
