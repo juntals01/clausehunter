@@ -467,8 +467,66 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Built for Every Professional ─── */}
+      {/* ─── Item-Level Tracking Showcase ─── */}
       <section className="bg-white px-5 sm:px-8 md:px-12 lg:px-[120px] py-12 lg:py-20">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+            <div className="flex-1 order-2 lg:order-1">
+              <span className="inline-flex items-center gap-1.5 bg-[#FFF7ED] border border-[#FDBA74] rounded-full px-3 py-1 text-xs font-semibold text-[#EA580C] mb-4">
+                <Package className="w-3.5 h-3.5" />
+                NEW FEATURE
+              </span>
+              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#1C1917] mb-4">
+                Item-Level Expiry Reminders
+              </h2>
+              <p className="text-base lg:text-[17px] text-[#78716C] mb-6 leading-relaxed">
+                Documents often contain dozens of individual items — devices, licenses, assets — each with its own expiry date.
+                Our AI extracts every single one and tracks them separately, so nothing slips through the cracks.
+              </p>
+              <ul className="space-y-3 mb-8">
+                {[
+                  "AI auto-extracts items from uploaded documents",
+                  "Each item gets its own due date and status tracking",
+                  "Email alerts at 30, 7, and 0 days before expiry",
+                  "Color-coded urgency: Overdue, Critical, Expiring Soon",
+                  "Add, edit, or remove items manually anytime",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-[#44403C]">
+                    <div className="w-5 h-5 rounded-full bg-[#DCFCE7] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <svg className="w-3 h-3 text-[#16A34A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/sign-up"
+                className="inline-flex items-center gap-2 font-display font-semibold text-sm bg-[#EA580C] text-white rounded-[10px] py-3 px-7 hover:bg-[#DC5409] transition-colors"
+              >
+                Try It Free
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+            <div className="flex-1 order-1 lg:order-2">
+              <div className="rounded-2xl border border-[#E7E5E4] shadow-xl overflow-hidden bg-white">
+                <Image
+                  src="/images/items-tracking-preview.png"
+                  alt="Item-level expiry tracking showing individual devices with due dates, status badges, and days left"
+                  width={850}
+                  height={720}
+                  className="w-full h-auto"
+                  priority={false}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Built for Every Professional ─── */}
+      <section className="bg-[#FFFBF5] px-5 sm:px-8 md:px-12 lg:px-[120px] py-12 lg:py-20">
         <div className="flex flex-col items-center">
           <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#1C1917] mb-4 text-center">
             Built for Every Professional
@@ -505,7 +563,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Security & Compliance ─── */}
-      <section className="bg-[#FFFBF5] px-5 sm:px-8 md:px-12 lg:px-[120px] py-12 lg:py-20">
+      <section className="bg-white px-5 sm:px-8 md:px-12 lg:px-[120px] py-12 lg:py-20">
         <div className="flex flex-col items-center">
           <div className="mb-6">
             <span className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-4 py-1.5">
