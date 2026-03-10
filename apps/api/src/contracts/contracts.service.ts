@@ -228,9 +228,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;line-height:1.6;color:#333;margin:0
     async reprocessContract(id: string, userId: string) {
         const contract = await this.getContract(id, userId);
 
-        if (contract.status !== 'failed' && contract.status !== 'processing') {
+        if (!contract.storedFilename) {
             throw new BadRequestException(
-                'Only failed or stuck contracts can be reprocessed',
+                'This document has no uploaded file and cannot be reprocessed',
             );
         }
 
